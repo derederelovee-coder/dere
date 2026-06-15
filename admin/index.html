@@ -101,7 +101,38 @@
       <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="saveLocalProfile()">저장 ♥</button></div>
     </div>
     <div class="card">
-      <div class="card-title">⭐ 관련 링크</div>
+      <div class="card-title">💗 좋아하는 것 · 싫어하는 것</div>
+      <div class="form-grid">
+        <div class="form-field"><label class="input-label">좋아 1</label><input class="input" id="f-like1" type="text"></div>
+        <div class="form-field"><label class="input-label">좋아 2</label><input class="input" id="f-like2" type="text"></div>
+        <div class="form-field"><label class="input-label">좋아 3</label><input class="input" id="f-like3" type="text"></div>
+        <div class="form-field"><label class="input-label">좋아 4</label><input class="input" id="f-like4" type="text"></div>
+        <div class="form-field"><label class="input-label">싫어 1</label><input class="input" id="f-dislike1" type="text"></div>
+        <div class="form-field"><label class="input-label">싫어 2</label><input class="input" id="f-dislike2" type="text"></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="saveLocalProfile()">저장 ♥</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">♥ TMI</div>
+      <div class="form-field"><label class="input-label">좋아하는 음식</label><input class="input" id="f-tmi-food" type="text"></div>
+      <div class="form-field"><label class="input-label">요즘 듣는 노래</label><input class="input" id="f-tmi-song" type="text"></div>
+      <div class="form-field"><label class="input-label">최근 읽은 책</label><input class="input" id="f-tmi-book" type="text"></div>
+      <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="saveLocalProfile()">저장 ♥</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 방송 요일</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="day-checks">
+        <label style="display:flex;align-items:center;gap:4px;font-size:14px"><input type="checkbox" class="day-chk" value="0">일</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:14px"><input type="checkbox" class="day-chk" value="1">월</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:14px"><input type="checkbox" class="day-chk" value="2">화</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:14px"><input type="checkbox" class="day-chk" value="3">수</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:14px"><input type="checkbox" class="day-chk" value="4">목</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:14px"><input type="checkbox" class="day-chk" value="5">금</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:14px"><input type="checkbox" class="day-chk" value="6">토</label>
+      </div>
+      <input type="hidden" id="f-days">
+      <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="saveDays()">저장 ♥</button></div>
+    </div>
       <div class="form-field"><label class="input-label">SOOP URL</label><input class="input" id="f-link-soop" type="url" placeholder="https://"></div>
       <div class="form-field"><label class="input-label">YouTube URL</label><input class="input" id="f-link-youtube" type="url" placeholder="https://"></div>
       <div class="form-field"><label class="input-label">Fan Cafe URL</label><input class="input" id="f-link-fancafe" type="url" placeholder="https://"></div>
@@ -334,6 +365,8 @@
   const profileKeys = [
     'head-sub','quote','msg','soop-id',
     'info-name','info-catchphrase','info-tags','info-mbti','info-fandom','info-dates',
+    'like1','like2','like3','like4','dislike1','dislike2',
+    'tmi-food','tmi-song','tmi-book','days',
     'link-soop','link-youtube','link-fancafe','link-fancim','link-mfancim','link-heart','link-code'
   ];
 
@@ -363,7 +396,15 @@
       if (rows && rows.length > 0 && rows[0].data) saved = rows[0].data;
     } catch(e) {}
     profileKeys.forEach(k => { const el = document.getElementById('f-' + k); if (el) el.value = saved[k] || ''; });
+    // 방송 요일 체크박스
+    const days = (saved.days || '').split(',').map(x=>x.trim());
+    document.querySelectorAll('.day-chk').forEach(c => { c.checked = days.includes(c.value); });
     showCurrentAvatar(saved.avatar || '');
+  }
+  async function saveDays() {
+    const days = [...document.querySelectorAll('.day-chk:checked')].map(c=>c.value).join(',');
+    document.getElementById('f-days').value = days;
+    await saveLocalProfile();
   }
   async function saveLocalProfile() {
     let saved = {};
