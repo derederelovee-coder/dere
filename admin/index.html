@@ -132,6 +132,14 @@
 
   <!-- 일정 탭 -->
   <div class="tab-panel" id="tab-schedule">
+    <style>
+      .color-pick { display:flex; gap:8px; flex-wrap:wrap; }
+      .color-pick label { width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent; display:inline-block; }
+      .color-pick input { display:none; }
+      .color-pick input:checked + span { box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--pink); }
+      .color-pick span { width:30px; height:30px; border-radius:50%; display:inline-block; }
+      .cdot-green{background:#3fae7e}.cdot-pink{background:#f48fb1}.cdot-yellow{background:#f5c542}.cdot-orange{background:#ee9a4d}.cdot-blue{background:#5a9fe0}.cdot-purple{background:#a07fd0}.cdot-red{background:#e36}.cdot-gray{background:#aaa}
+    </style>
     <div class="card">
       <div class="card-title">일정 추가</div>
       <div class="form-grid">
@@ -139,8 +147,25 @@
         <div class="form-field"><label class="input-label">유형</label>
           <select class="input" id="sch-type"><option value="방송">방송</option><option value="휴방">휴방</option></select>
         </div>
-        <div class="form-field"><label class="input-label">시간</label><input class="input" id="sch-time" placeholder="오후 8시"></div>
-        <div class="form-field full"><label class="input-label">제목 (휴방이면 비워도 됨)</label><input class="input" id="sch-title" placeholder="방송 제목"></div>
+        <div class="form-field full">
+          <label class="input-label">색상</label>
+          <div class="color-pick">
+            <label><input type="radio" name="schcolor" value="green" checked><span class="cdot-green"></span></label>
+            <label><input type="radio" name="schcolor" value="pink"><span class="cdot-pink"></span></label>
+            <label><input type="radio" name="schcolor" value="yellow"><span class="cdot-yellow"></span></label>
+            <label><input type="radio" name="schcolor" value="orange"><span class="cdot-orange"></span></label>
+            <label><input type="radio" name="schcolor" value="blue"><span class="cdot-blue"></span></label>
+            <label><input type="radio" name="schcolor" value="purple"><span class="cdot-purple"></span></label>
+            <label><input type="radio" name="schcolor" value="red"><span class="cdot-red"></span></label>
+            <label><input type="radio" name="schcolor" value="gray"><span class="cdot-gray"></span></label>
+          </div>
+        </div>
+        <div class="form-field"><label class="input-label">1부 시간</label><input class="input" id="sch-time" placeholder="오후 5시"></div>
+        <div class="form-field"><label class="input-label">1부 제목 (휴방이면 비워도 됨)</label><input class="input" id="sch-title" placeholder="방송 제목"></div>
+        <div class="form-field"><label class="input-label">2부 시간 (선택)</label><input class="input" id="sch-time2" placeholder="오후 9시"></div>
+        <div class="form-field"><label class="input-label">2부 제목 (선택)</label><input class="input" id="sch-title2" placeholder="2부 있을 경우"></div>
+        <div class="form-field full"><label class="input-label">설명 (선택)</label><textarea class="input" id="sch-desc" rows="2"></textarea></div>
+        <div class="form-field full"><label><input type="checkbox" id="sch-hl"> ⭐ 하이라이트 (달력에서 강조)</label></div>
         <div class="form-field full" style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="addSchedule()">+ 추가</button></div>
       </div>
     </div>
@@ -448,9 +473,22 @@
     const type = document.getElementById('sch-type').value;
     let title = document.getElementById('sch-title').value.trim();
     if (!title) title = (type === '휴방' ? '휴방' : '방송');
-    const ok = await insertRow('schedule', { title, date, time: document.getElementById('sch-time').value, type });
-    if (ok) { showToast('✅ 추가!'); ['sch-title','sch-date','sch-time'].forEach(id=>document.getElementById(id).value=''); loadSchedule(); }
-    else showToast('❌ 실패');
+    const color = (document.querySelector('input[name="schcolor"]:checked')||{}).value || 'green';
+    const row = {
+      title, date, type, color,
+      time: document.getElementById('sch-time').value,
+      time2: document.getElementById('sch-time2').value,
+      title2: document.getElementById('sch-title2').value.trim(),
+      description: document.getElementById('sch-desc').value.trim(),
+      highlight: document.getElementById('sch-hl').checked
+    };
+    const ok = await insertRow('schedule', row);
+    if (ok) {
+      showToast('✅ 추가!');
+      ['sch-title','sch-date','sch-time','sch-time2','sch-title2','sch-desc'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('sch-hl').checked = false;
+      loadSchedule();
+    } else showToast('❌ 실패');
   }
 
   // ── 업보 시스템 v2 ──
