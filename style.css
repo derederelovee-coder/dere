@@ -2,7 +2,14 @@
    리데레 팬페이지 — 공통 디자인 시스템
    ============================================= */
 
+@font-face {
+  font-family: 'AndongKaturi';
+  src: url('https://cdn.jsdelivr.net/gh/webdesignfarm/font/AndongKaturi.woff') format('woff');
+  font-display: swap;
+}
+
 :root {
+  --katuri: 'AndongKaturi', 'Nanum Pen Script', cursive;
   --pink:        #ff8fab;
   --pink-dark:   #d95f7f;
   --pink-deep:   #b84468;
@@ -57,13 +64,14 @@ body::before {
   gap: 2px;
 }
 a.nav-logo {
-  font-family: 'Nanum Pen Script', cursive;
+  font-family: var(--katuri);
   font-size: 30px !important; color: #e8739a !important;
   margin-right: auto;
   padding: 10px 12px;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap; flex-shrink: 0;
+  letter-spacing: 1px;
 }
 .nav a {
   padding: 18px 18px;

@@ -18,38 +18,40 @@
     .diary-header { display: flex; align-items: center; gap: 12px; }
     .diary-mood { display: none; }
     .diary-meta { flex: 1; }
-    .diary-title { font-size: 15px; font-weight: 600; color: var(--text); }
-    .diary-date { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+    .diary-title { font-size: 16px; font-weight: 700; color: var(--text); }
+    .diary-date { font-size: 13px; color: var(--text-soft); margin-top: 3px; }
     .diary-arrow { color: var(--pink-light); font-size: 16px; transition: transform 0.2s; }
     .diary-item.open .diary-arrow { transform: rotate(90deg); }
     .diary-content {
-      font-size: 15px; color: var(--pink-dark); line-height: 1.8;
-      font-family: 'Nanum Pen Script', cursive; font-size: 20px;
+      color: var(--text); line-height: 1.7;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 15px;
       max-height: 0; overflow: hidden; transition: max-height 0.4s;
       white-space: pre-wrap;
     }
     .diary-item.open .diary-content {
-      max-height: 3000px; margin-top: 14px;
+      max-height: 4000px; margin-top: 14px;
       padding-top: 14px; border-top: 1px solid var(--pink-light);
     }
     .post-img { display: block; max-width: 100%; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--pink-light); }
-    .cmt-wrap { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--pink-light); }
-    .cmt-title { font-size: 13px; font-weight: 700; color: var(--pink-dark); margin-bottom: 10px; }
-    .cmt-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
-    .cmt-item { background: #fff5f8; border-radius: 10px; padding: 9px 12px; }
-    .cmt-item .cn { font-size: 12px; font-weight: 700; color: var(--pink-dark); }
-    .cmt-item .cm { font-size: 13px; color: var(--text); margin-top: 2px; white-space: pre-wrap; word-break: break-word; }
-    .cmt-empty { font-size: 12px; color: var(--text-soft); padding: 4px 0; }
+    .diary-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--pink-light); flex-shrink: 0; }
+    .cmt-wrap { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--pink-light); }
+    .cmt-title { font-size: 15px; font-weight: 700; color: var(--pink-dark); margin-bottom: 10px; }
+    .cmt-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
+    .cmt-list:empty { margin-bottom: 0; }
+    .cmt-item { background: #fff5f8; border-radius: 10px; padding: 9px 13px; }
+    .cmt-item .cn { font-size: 13px; font-weight: 700; color: var(--pink-dark); }
+    .cmt-item .cm { font-size: 14px; color: var(--text); margin-top: 3px; white-space: pre-wrap; word-break: break-word; line-height: 1.5; }
+    .cmt-empty { font-size: 13px; color: var(--text-soft); padding: 2px 0 8px; }
     .cmt-form { display: flex; gap: 6px; flex-wrap: wrap; }
-    .cmt-nick { width: 90px; padding: 9px 10px; border-radius: 9px; border: 1.5px solid var(--pink-light); font-size: 13px; outline: none; }
-    .cmt-msg { flex: 1; min-width: 120px; padding: 9px 12px; border-radius: 9px; border: 1.5px solid var(--pink-light); font-size: 13px; outline: none; }
+    .cmt-nick { width: 100px; padding: 10px 12px; border-radius: 9px; border: 1.5px solid var(--pink-light); font-size: 14px; outline: none; }
+    .cmt-msg { flex: 1; min-width: 130px; padding: 10px 13px; border-radius: 9px; border: 1.5px solid var(--pink-light); font-size: 14px; outline: none; }
     .cmt-nick:focus, .cmt-msg:focus { border-color: var(--pink); }
-    .cmt-send { padding: 9px 16px; border-radius: 9px; border: none; background: var(--pink); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .cmt-send { padding: 10px 18px; border-radius: 9px; border: none; background: var(--pink); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
   </style>
 </head>
 <body>
 <nav class="nav"><div class="nav-inner">
-  <a href="../index.html" class="nav-logo">리데레 🎀</a>
+  <a href="../index.html" class="nav-logo">RIDERE</a>
   <a href="../index.html">프로필</a>
   <a href="../notice/">공지</a>
   <a href="../schedule/">일정</a>
@@ -95,6 +97,7 @@
     el.innerHTML = items.map(d => {
       const imgs = (d.images && d.images.length) ? d.images : (d.image_url ? [d.image_url] : []);
       const imgHtml = imgs.map(u => `<img src="${u}" class="post-img" loading="lazy" alt="">`).join('');
+      const thumb = imgs.length ? `<img src="${imgs[0]}" class="diary-thumb" loading="lazy" alt="">` : '';
       return `
       <div class="diary-item" data-id="${d.id}">
         <div class="diary-header" onclick="toggleDiary(this)">
@@ -102,6 +105,7 @@
             <div class="diary-title">${d.title}</div>
             <div class="diary-date">${d.diary_date || ''}</div>
           </div>
+          ${thumb}
           <span class="diary-arrow">›</span>
         </div>
         <div class="diary-content">

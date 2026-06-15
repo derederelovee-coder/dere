@@ -19,6 +19,7 @@
     .notice-header { display: flex; align-items: center; gap: 10px; }
     .notice-pin { font-size: 11px; background: var(--pink); color: #fff; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
     .notice-title { font-size: 15px; font-weight: 600; color: var(--text); flex: 1; }
+    .notice-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--pink-light); flex-shrink: 0; }
     .notice-date { font-size: 12px; color: var(--text-soft); }
     .notice-arrow { color: var(--pink-light); font-size: 16px; transition: transform 0.2s; }
     .notice-item.open .notice-arrow { transform: rotate(90deg); }
@@ -37,7 +38,7 @@
 </head>
 <body>
 <nav class="nav"><div class="nav-inner">
-  <a href="../index.html" class="nav-logo">리데레 🎀</a>
+  <a href="../index.html" class="nav-logo">RIDERE</a>
   <a href="../index.html">프로필</a>
   <a href="index.html" class="active">공지</a>
   <a href="../schedule/">일정</a>
@@ -78,15 +79,18 @@
     el.innerHTML = all.map(n => {
       const date = new Date(n.created_at);
       const dateStr = `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,'0')}.${String(date.getDate()).padStart(2,'0')}`;
+      const imgs = (n.images&&n.images.length)?n.images:(n.image_url?[n.image_url]:[]);
+      const thumb = imgs.length ? `<img src="${imgs[0]}" class="notice-thumb" loading="lazy" alt="">` : '';
       return `
         <div class="notice-item${n.pinned?' pinned':''}" onclick="this.classList.toggle('open')">
           <div class="notice-header">
             ${n.pinned ? '<span class="notice-pin">고정</span>' : ''}
             <span class="notice-title">${n.title}</span>
+            ${thumb}
             <span class="notice-date">${dateStr}</span>
             <span class="notice-arrow">›</span>
           </div>
-          <div class="notice-content">${((n.images&&n.images.length)?n.images:(n.image_url?[n.image_url]:[])).map(u=>`<img src="${u}" class="post-img" loading="lazy" alt="">`).join('')}${n.content || ''}</div>
+          <div class="notice-content">${imgs.map(u=>`<img src="${u}" class="post-img" loading="lazy" alt="">`).join('')}${n.content || ''}</div>
         </div>`;
     }).join('');
   }
