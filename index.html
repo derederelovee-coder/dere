@@ -174,11 +174,9 @@
 
     /* ── 데레 특징 ── */
     .ovod-grid { display: grid; grid-template-columns: 1fr; gap: 12px; max-width: 600px; margin: 0 auto; }
-    .ovod-card { display: block; text-decoration: none; border-radius: 16px; overflow: hidden; border: 1.5px solid var(--pink-light); background: #fff; transition: all .2s; }
-    .ovod-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
-    .ovod-thumb { position: relative; width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #ffd6e0, #ffb6c8); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .ovod-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .ovod-play { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--pink-dark); box-shadow: 0 2px 14px rgba(0,0,0,0.25); }
+    .ovod-card { display: block; border-radius: 16px; overflow: hidden; border: 1.5px solid var(--pink-light); background: #fff; }
+    .ovod-embed { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; }
+    .ovod-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .ovod-title { padding: 14px 16px; font-size: 16px; font-weight: 700; color: var(--text); text-align: center; }    .info-list { display: flex; flex-direction: column; gap: 0; }
     .info-row {
       display: flex; align-items: flex-start;
@@ -345,7 +343,7 @@
 
   <!-- 방송 요일 -->
   <div class="card">
-    <div class="card-head">📅 이번주 방송 요일</div>
+    <div class="card-head">📅 방송 요일</div>
     <div class="day-row">
       <span class="day" id="day-0">일</span>
       <span class="day on" id="day-1">월</span>
@@ -547,15 +545,12 @@
     card.style.display = '';
     grid.innerHTML = list.map(s => {
       const vid = (s.vod_id || '').trim();
-      const url = vid ? `https://vod.sooplive.co.kr/player/${vid}` : '#';
-      const thumb = s.thumbnail || soopVodThumb(vid);
-      const thumbHtml = thumb
-        ? `<img src="${thumb}" alt="" onerror="this.style.display='none'">`
-        : '';
-      return `<a class="ovod-card" href="${url}" target="_blank">
-        <div class="ovod-thumb">${thumbHtml}<span class="ovod-play">▶</span></div>
+      return `<div class="ovod-card">
+        <div class="ovod-embed">
+          <iframe src="https://vod.sooplive.co.kr/player/${vid}/embed?showChat=false&autoPlay=false&mutePlay=false" frameborder="0" allowfullscreen scrolling="no"></iframe>
+        </div>
         <div class="ovod-title">${(s.title||'').replace(/</g,'&lt;')}</div>
-      </a>`;
+      </div>`;
     }).join('');
   }
 
