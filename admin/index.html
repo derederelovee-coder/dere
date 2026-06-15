@@ -133,6 +133,17 @@
       <input type="hidden" id="f-days">
       <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="saveDays()">저장 ♥</button></div>
     </div>
+    <div class="card">
+      <div class="card-title">🎵 데레의 오리지널 곡</div>
+      <div class="form-grid">
+        <div class="form-field full"><label class="input-label">영상 제목 *</label><input class="input" id="os-title" placeholder="노아란 - Snowman (Sia)"></div>
+        <div class="form-field full"><label class="input-label">SOOP VOD ID *</label><input class="input" id="os-vod" placeholder="194780409"></div>
+        <div class="form-field full"><label class="input-label">썸네일 URL (선택 · 비우면 자동 시도)</label><input class="input" id="os-thumb" placeholder="https:// (선택)"></div>
+        <div class="form-field full" style="font-size:12px;color:var(--text-soft)">💡 SOOP VOD 주소 sooplive.com/아이디/v/<b>194780409</b> 에서 숫자 부분만 입력</div>
+        <div class="form-field full" style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="addOriginalSong()">+ 추가</button></div>
+      </div>
+      <div id="os-list" style="margin-top:6px"></div>
+    </div>
       <div class="form-field"><label class="input-label">SOOP URL</label><input class="input" id="f-link-soop" type="url" placeholder="https://"></div>
       <div class="form-field"><label class="input-label">YouTube URL</label><input class="input" id="f-link-youtube" type="url" placeholder="https://"></div>
       <div class="form-field"><label class="input-label">Fan Cafe URL</label><input class="input" id="f-link-fancafe" type="url" placeholder="https://"></div>
@@ -375,7 +386,7 @@
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('adminBody').style.display = 'flex';
       loadProfileFields();
-      loadNotice(); loadSchedule(); loadWork(); loadDiary(); loadSong(); loadInquiry();
+      loadNotice(); loadSchedule(); loadWork(); loadDiary(); loadSong(); loadInquiry(); loadOriginalSongs();
     } else {
       document.getElementById('loginErr').textContent = '비밀번호가 틀렸어요 >﹏<';
     }
@@ -739,6 +750,28 @@
         <div style="font-size:14px;color:var(--text);white-space:pre-wrap;line-height:1.5">${(q.message||'').replace(/</g,'&lt;')}</div>
         <div style="text-align:right;margin-top:8px"><button class="delete-btn" onclick="del('inquiries',${q.id},loadInquiry)">🗑 삭제</button></div>
       </div>`).join('');
+  }
+
+  // ── 오리지널 곡 ──
+  async function loadOriginalSongs() {
+    const data = await fetchAll('original_songs', { order: 'id', asc: false });
+    const el = document.getElementById('os-list');
+    if (!el) return;
+    if (!data.length) { el.innerHTML = '<div style="font-size:13px;color:#ccc;text-align:center;padding:10px">등록된 곡 없음</div>'; return; }
+    el.innerHTML = data.map(s => `
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fff;border:1px solid var(--pink-light);border-radius:10px;margin-bottom:7px">
+        <span style="flex:1;font-size:14px;font-weight:600">${(s.title||'').replace(/</g,'&lt;')}</span>
+        <span style="font-size:11px;color:var(--text-soft)">${s.vod_id||''}</span>
+        <button class="delete-btn" onclick="del('original_songs',${s.id},loadOriginalSongs)">🗑</button>
+      </div>`).join('');
+  }
+  async function addOriginalSong() {
+    const title = document.getElementById('os-title').value.trim();
+    const vod = document.getElementById('os-vod').value.trim();
+    if (!title || !vod) { showToast('❗ 제목/VOD ID 필수!'); return; }
+    const ok = await insertRow('original_songs', { title, vod_id: vod, thumbnail: document.getElementById('os-thumb').value.trim() });
+    if (ok) { showToast('✅ 추가!'); ['os-title','os-vod','os-thumb'].forEach(id=>document.getElementById(id).value=''); loadOriginalSongs(); }
+    else showToast('❌ 실패');
   }
 </script>
 </body>
