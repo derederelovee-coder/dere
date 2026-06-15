@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>리데레 · 노래방</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .search-wrap { display: flex; gap: 8px; margin-bottom: 16px; }
+    .search-wrap .input { flex: 1; }
+    .song-count { font-size: 12px; color: var(--text-soft); margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo">리데레 🎀</a>
+    <a href="../index.html">프로필</a>
+    <a href="../schedule/">일정</a>
+    <a href="index.html" class="active">노래</a>
+    <a href="../work/">업보</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-title">🎵 노래방 목록</div>
+  <div class="page-subtitle">리데레가 방송에서 부른 노래들이에요 ♡</div>
+
+  <!-- 검색 -->
+  <div class="card" style="padding: 16px 20px;">
+    <div class="search-wrap">
+      <input class="input" id="searchInput" placeholder="🔍 제목 또는 가수 검색..." oninput="filterSongs()">
+    </div>
+    <div class="song-count" id="songCount"></div>
+  </div>
+
+  <!-- 목록 -->
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>제목</th>
+            <th>가수</th>
+            <th>장르</th>
+            <th>날짜</th>
+          </tr>
+        </thead>
+        <tbody id="song-tbody">
+          <tr><td colspan="5"><div class="spinner"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</div>
+<footer>© 2026 리데레 팬페이지 ♥</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../supabase.js"></script>
+<script>
+  const PAGE_SIZE = 15;
+  let allSongs = [];
+  let filtered = [];
+  let currentPage = 1;
+
+  async function init() {
+    allSongs = await fetchAll('song', { order: 'created_at', asc: false });
+    filtered = allSongs;
+    renderPage(1);
+  }
+
+  function filterSongs() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    filtered = allSongs.filter(s =>
+      s.title?.toLowerCase().includes(q) || s.artist?.toLowerCase().includes(q)
+    );
+    renderPage(1);
+  }
+
+  function renderPage(page) {
+    currentPage = page;
+    const start = (page - 1) * PAGE_SIZE;
+    const items = filtered.slice(start, start + PAGE_SIZE);
+    const tbody = document.getElementById('song-tbody');
+    document.getElementById('songCount').textContent = `총 ${filtered.length}곡`;
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🎵</div>곡이 없어요</div></td></tr>`;
+      document.getElementById('pagination').innerHTML = '';
+      return;
+    }
+
+    tbody.innerHTML = items.map((s, i) => `
+      <tr>
+        <td style="color:var(--text-soft);font-size:12px">${start + i + 1}</td>
+        <td><strong>${s.title}</strong></td>
+        <td style="color:var(--text-mid)">${s.artist}</td>
+        <td><span class="badge badge-pink" style="font-size:11px">${s.genre || '-'}</span></td>
+        <td style="color:var(--text-soft);font-size:12px">${s.sung_date || '-'}</td>
+      </tr>`
+    ).join('');
+
+    // 페이지네이션
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+    const pg = document.getElementById('pagination');
+    pg.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (i === page ? ' active' : '');
+      btn.textContent = i;
+      btn.onclick = () => renderPage(i);
+      pg.appendChild(btn);
+    }
+  }
+
+  init();
+  if (window !== window.parent) initIframeResize();
+</script>
+</body>
+</html>

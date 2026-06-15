@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>리데레 · 방송 일정</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .calendar { background: var(--pink-card); border-radius: 20px; border: 1.5px solid var(--pink-light); box-shadow: var(--shadow); overflow: hidden; }
+    .cal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; }
+    .cal-title { font-size: 20px; font-weight: 700; color: var(--text); }
+    .cal-nav { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--pink-light); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-mid); transition: all 0.2s; }
+    .cal-nav:hover { background: var(--pink-light); }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); }
+    .cal-dow { padding: 10px 4px; text-align: center; font-size: 13px; font-weight: 700; color: var(--pink); }
+    .cal-dow:first-child { color: #e05; }
+    .cal-dow:last-child { color: #4a9; }
+    .cal-cell { height: 80px; border-top: 1px solid var(--pink-light); border-right: 1px solid var(--pink-light); padding: 4px; position: relative; overflow: hidden; }
+    .cal-cell:nth-child(7n) { border-right: none; }
+    .cal-cell.other { opacity: 0.3; }
+    .cal-cell.today { background: #f0fbff; }
+    .cal-date { font-size: 13px; font-weight: 600; color: var(--text-mid); padding: 2px 4px; }
+    .cal-cell:nth-child(7n+1) .cal-date { color: #e05; }
+    .cal-cell:nth-child(7n) .cal-date { color: #4a9; }
+    .cal-event { font-size: 10px; padding: 2px 5px; border-radius: 4px; margin: 1px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; font-weight: 500; cursor: default; position: relative; }
+    
+    
+    .cal-event.normal { background: var(--pink-light); color: var(--pink-dark); }
+    .cal-event.special { background: #d4edda; color: #2d6a4f; }
+    .cal-event.collab { background: #cfe2ff; color: #084298; }
+    .cal-event.off { background: #ffe0eb; color: #d95f7f; }
+
+    .upcoming-item { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--pink-light); }
+    .upcoming-item:last-child { border-bottom: none; }
+    .upcoming-date-box { flex-shrink: 0; width: 76px; text-align: center; }
+    .upcoming-date { font-size: 14px; font-weight: 700; color: var(--pink-dark); }
+    .upcoming-day { font-size: 12px; color: var(--text-soft); }
+    .upcoming-bar { width: 3px; height: 44px; border-radius: 999px; flex-shrink: 0; }
+    .upcoming-bar.normal { background: var(--pink); }
+    .upcoming-bar.special { background: #2d6a4f; }
+    .upcoming-bar.collab { background: #084298; }
+    .upcoming-bar.off { background: #d95f7f; }
+    .upcoming-info { flex: 1; }
+    .upcoming-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .upcoming-time { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
+    .upcoming-tag { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+    .upcoming-tag.normal { background: var(--pink-light); color: var(--pink-dark); }
+    .upcoming-tag.special { background: #d4edda; color: #2d6a4f; }
+    .upcoming-tag.collab { background: #cfe2ff; color: #084298; }
+    .upcoming-tag.off { background: #ffe0eb; color: #d95f7f; }
+  </style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a href="../index.html" class="nav-logo">리데레 🎀</a>
+  <a href="../index.html">프로필</a>
+  <a href="../notice/">공지</a>
+  <a href="index.html" class="active">일정</a>
+  <a href="../work/">업보</a>
+  <a href="../diary/">일기</a>
+</div></nav>
+
+<div class="container">
+  <div class="page-title">📅 방송 일정</div>
+  <div class="calendar">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+      <span class="cal-title" id="calTitle"></span>
+      <button class="cal-nav" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">다가오는 일정</div>
+    <div id="upcoming"><div class="spinner"></div></div>
+  </div>
+</div>
+<footer>© 2026 리데레 팬페이지 ♥</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../supabase.js"></script>
+<script>
+  let currentYear, currentMonth, allSchedule = [];
+  const DAYS = ['일','월','화','수','목','금','토'];
+  const TYPE_CLASS = { '일반':'normal', '특별':'special', '콜라보':'collab', '휴방':'off' };
+
+  async function init() {
+    const now = new Date(); currentYear = now.getFullYear(); currentMonth = now.getMonth();
+    allSchedule = await fetchAll('schedule', { order: 'date', asc: true });
+    renderCalendar(); renderUpcoming();
+  }
+  function changeMonth(d) {
+    currentMonth += d;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    renderCalendar();
+  }
+  function renderCalendar() {
+    document.getElementById('calTitle').textContent = `${currentYear}년 ${currentMonth+1}월`;
+    const grid = document.getElementById('calGrid');
+    const first = new Date(currentYear, currentMonth, 1);
+    const last = new Date(currentYear, currentMonth+1, 0);
+    const startDay = first.getDay();
+    const today = new Date();
+    let html = DAYS.map(d => `<div class="cal-dow">${d}</div>`).join('');
+    const prevLast = new Date(currentYear, currentMonth, 0).getDate();
+    for (let i = startDay-1; i >= 0; i--) html += `<div class="cal-cell other"><span class="cal-date">${prevLast-i}</span></div>`;
+    for (let d = 1; d <= last.getDate(); d++) {
+      const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = today.getFullYear()===currentYear && today.getMonth()===currentMonth && today.getDate()===d;
+      const events = allSchedule.filter(s => s.date === dateStr);
+      const evHtml = events.map(e => {
+        const cls = TYPE_CLASS[e.type] || 'normal';
+        const full = (e.time ? e.time+' ' : '') + e.title;
+        return `<span class="cal-event ${cls}" title="${full}">${full}</span>`;
+      }).join('');
+      html += `<div class="cal-cell${isToday?' today':''}"><span class="cal-date">${d}</span>${evHtml}</div>`;
+    }
+    const totalCells = startDay + last.getDate();
+    const rem = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    for (let i = 1; i <= rem; i++) html += `<div class="cal-cell other"><span class="cal-date">${i}</span></div>`;
+    grid.innerHTML = html;
+  }
+  function renderUpcoming() {
+    const today = new Date().toISOString().split('T')[0];
+    const upcoming = allSchedule.filter(s => s.date >= today).slice(0, 10);
+    const el = document.getElementById('upcoming');
+    if (!upcoming.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>다가오는 일정이 없어요</div>'; return; }
+    el.innerHTML = upcoming.map(s => {
+      const d = new Date(s.date); const cls = TYPE_CLASS[s.type] || 'normal';
+      return `<div class="upcoming-item"><div class="upcoming-date-box"><div class="upcoming-date">${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}</div><div class="upcoming-day">(${DAYS[d.getDay()]})</div></div><div class="upcoming-bar ${cls}"></div><div class="upcoming-info"><div class="upcoming-title">${s.title}</div><div class="upcoming-time">${s.time||''}</div></div><span class="upcoming-tag ${cls}">${s.type||'방송'}</span></div>`;
+    }).join('');
+  }
+  init();
+</script>
+</body>
+</html>

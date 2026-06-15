@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>리데레 · 업보</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .upbo-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
+    .upbo-date { font-size: 12px; color: var(--text-soft); background: #fff; border: 1px solid var(--pink-light); border-radius: 999px; padding: 4px 14px; }
+    .search-box { display: flex; gap: 8px; margin-bottom: 8px; }
+    .search-box .input { flex: 1; }
+    .upbo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .upbo-card {
+      background: #fff; border-radius: 16px; border: 1.5px solid var(--pink-light);
+      padding: 22px 16px; text-align: center;
+      transition: all 0.2s; cursor: pointer;
+    }
+    .upbo-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+    
+    .upbo-nick { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .upbo-count {
+      display: inline-block; background: var(--pink);
+      color: #fff; border-radius: 999px;
+      padding: 3px 14px; font-size: 12px; font-weight: 600;
+    }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; align-items: center; justify-content: center; z-index: 300; padding: 20px; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--pink-card); border-radius: 20px; border: 1.5px solid var(--pink-light); box-shadow: var(--shadow-hover); max-width: 440px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 24px; }
+    .modal-close { float: right; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-soft); }
+    .modal-nick { font-size: 20px; font-weight: 700; color: var(--pink-dark); margin-bottom: 4px; }
+    .modal-count { font-size: 13px; color: var(--text-soft); margin-bottom: 16px; }
+    .modal-item { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--pink-light); }
+    .modal-item:last-child { border-bottom: none; }
+    .modal-item-num { width: 24px; height: 24px; border-radius: 50%; background: var(--pink-light); color: var(--pink-dark); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .modal-item-info { flex: 1; }
+    .modal-item-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .modal-item-desc { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
+    .modal-item-date { font-size: 11px; color: var(--text-soft); }
+    @media (max-width: 600px) { .upbo-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a href="../index.html" class="nav-logo">리데레 🎀</a>
+  <a href="../index.html">프로필</a>
+  <a href="../notice/">공지</a>
+  <a href="../schedule/">일정</a>
+  <a href="index.html" class="active">업보</a>
+  <a href="../diary/">일기</a>
+</div></nav>
+
+<div class="container">
+  <div class="page-title">업보 현황</div>
+
+  <div class="card">
+    <div class="upbo-header">
+      <div class="card-title" style="margin-bottom:0">UPBO</div>
+      <span class="upbo-date" id="updateDate"></span>
+    </div>
+    <div class="search-box">
+      <input class="input" id="searchInput" placeholder="닉네임 또는 카테고리 검색..." oninput="filterCards()">
+    </div>
+  </div>
+
+  <div class="upbo-grid" id="upbo-grid">
+    <div style="grid-column:1/-1"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<footer>© 2026 리데레 팬페이지 ♥</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../supabase.js"></script>
+<script>
+  let allData = [];
+
+
+  async function init() {
+    allData = await fetchAll('work', { order: 'created_at', asc: false });
+    document.getElementById('updateDate').textContent = '갱신일: ' + new Date().toISOString().split('T')[0];
+    renderCards(allData);
+  }
+
+  function filterCards() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allData.filter(w =>
+      (w.nickname||'').toLowerCase().includes(q) ||
+      (w.category||'').toLowerCase().includes(q) ||
+      (w.title||'').toLowerCase().includes(q)
+    );
+    renderCards(filtered);
+  }
+
+
+
+  function renderCards(data) {
+    const grouped = {};
+    data.forEach(w => {
+      const nick = w.nickname || w.title;
+      if (!grouped[nick]) grouped[nick] = [];
+      grouped[nick].push(w);
+    });
+
+    const grid = document.getElementById('upbo-grid');
+    if (!Object.keys(grouped).length) {
+      grid.innerHTML = '<div style="grid-column:1/-1"><div class="empty">업보가 없어요</div></div>';
+      return;
+    }
+
+    grid.innerHTML = Object.entries(grouped).map(([nick, items]) => {
+      return `
+        <div class="upbo-card" onclick="showDetail('${nick.replace(/'/g,"\\'")}')">
+          <div class="upbo-nick">${nick}</div>
+          <span class="upbo-count">업보 ${items.length}</span>
+        </div>`;
+    }).join('');
+  }
+
+  function showDetail(nick) {
+    const items = allData.filter(w => (w.nickname || w.title) === nick);
+    document.getElementById('modal-content').innerHTML = `
+      <div class="modal-nick">${nick}</div>
+      <div class="modal-count">총 ${items.length}개의 업보</div>
+      ${items.map((w, i) => `
+        <div class="modal-item">
+          <div class="modal-item-num">${i+1}</div>
+          <div class="modal-item-info">
+            <div class="modal-item-title">${w.title}</div>
+            ${w.description ? `<div class="modal-item-desc">${w.description}</div>` : ''}
+            ${w.event_date ? `<div class="modal-item-date">${w.event_date}</div>` : ''}
+          </div>
+        </div>`
+      ).join('')}`;
+    document.getElementById('modal').classList.add('show');
+  }
+  function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+  init();
+</script>
+</body>
+</html>
