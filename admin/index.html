@@ -50,6 +50,7 @@
       <button class="tab-btn" onclick="switchTab('work',this)">⚡ 업보</button>
       <button class="tab-btn" onclick="switchTab('diary',this)">📝 일기</button>
       <button class="tab-btn" onclick="switchTab('song',this)">🎵 노래</button>
+      <button class="tab-btn" onclick="switchTab('inquiry',this)">✉️ 문의</button>
     </div>
   </div>
 
@@ -118,7 +119,7 @@
       <div class="card-title">공지 추가</div>
       <div class="form-field"><label class="input-label">제목 *</label><input class="input" id="noti-title"></div>
       <div class="form-field"><label class="input-label">내용</label><textarea class="input" id="noti-content" rows="4"></textarea></div>
-      <div class="form-field"><label class="input-label">이미지 (선택 · 자동 압축됨)</label><input type="file" id="noti-image" accept="image/*" class="input"></div>
+      <div class="form-field"><label class="input-label">이미지 (여러 장 선택 가능 · 자동 압축됨)</label><input type="file" id="noti-image" accept="image/*" class="input" multiple></div>
       <div class="form-field"><label><input type="checkbox" id="noti-pin"> 📌 고정 공지</label></div>
       <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="addNotice()">+ 추가</button></div>
     </div>
@@ -254,7 +255,7 @@
           </select>
         </div>
         <div class="form-field full"><label class="input-label">내용</label><textarea class="input" id="diary-content" rows="5"></textarea></div>
-        <div class="form-field full"><label class="input-label">이미지 (선택 · 자동 압축됨)</label><input type="file" id="diary-image" accept="image/*" class="input"></div>
+        <div class="form-field full"><label class="input-label">이미지 (여러 장 선택 가능 · 자동 압축됨)</label><input type="file" id="diary-image" accept="image/*" class="input" multiple></div>
         <div class="form-field"><label class="input-label">날짜</label><input class="input" id="diary-date" type="date"></div>
         <div class="form-field" style="display:flex;align-items:flex-end"><button class="btn btn-primary" onclick="addDiary()">+ 추가</button></div>
       </div>
@@ -272,7 +273,7 @@
       <div class="card-title">곡 추가</div>
       <div class="form-grid">
         <div class="form-field"><label class="input-label">장르</label>
-          <select class="input" id="song-genre"><option>K-Pop</option><option>J-Pop</option><option>Pop</option><option>중국</option><option>애교송</option><option>기타</option></select>
+          <select class="input" id="song-genre"><option>K-Pop</option><option>J-Pop</option><option>Pop</option><option>애교송</option><option>기타</option></select>
         </div>
         <div class="form-field"><label class="input-label">아티스트</label><input class="input" id="song-artist" placeholder="아티스트명"></div>
         <div class="form-field"><label class="input-label">제목 *</label><input class="input" id="song-title" placeholder="곡명"></div>
@@ -285,6 +286,14 @@
       <input class="input" id="song-search" placeholder="🔍 검색..." style="margin-bottom:12px" oninput="renderSongs()">
       <div class="table-wrap"><table><thead><tr><th>제목</th><th>아티스트</th><th>장르</th><th>난이도</th><th>삭제</th></tr></thead>
       <tbody id="song-list"><tr><td colspan="5"><div class="spinner"></div></td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- 문의 탭 -->
+  <div class="tab-panel" id="tab-inquiry">
+    <div class="card">
+      <div class="card-title">📬 문의함</div>
+      <div id="inquiry-list"><div class="spinner"></div></div>
     </div>
   </div>
 
@@ -308,7 +317,7 @@
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('adminBody').style.display = 'flex';
       loadProfileFields();
-      loadNotice(); loadSchedule(); loadWork(); loadDiary(); loadSong();
+      loadNotice(); loadSchedule(); loadWork(); loadDiary(); loadSong(); loadInquiry();
     } else {
       document.getElementById('loginErr').textContent = '비밀번호가 틀렸어요 >﹏<';
     }
@@ -406,10 +415,18 @@
   async function addNotice() {
     const title = document.getElementById('noti-title').value.trim();
     if (!title) { showToast('❗ 제목 필수!'); return; }
-    let image_url = null;
-    const imgFile = document.getElementById('noti-image').files[0];
-    if (imgFile) { showToast('🖼 이미지 업로드 중...'); image_url = await uploadImage(imgFile, 'notice'); if (!image_url) { showToast('❌ 이미지 업로드 실패'); return; } }
-    const ok = await insertRow('notice', { title, content: document.getElementById('noti-content').value, pinned: document.getElementById('noti-pin').checked, image_url });
+    let image_url = null; let images = [];
+    const files = document.getElementById('noti-image').files;
+    if (files.length) {
+      showToast(`🖼 이미지 ${files.length}장 업로드 중...`);
+      for (const f of files) {
+        const url = await uploadImage(f, 'notice');
+        if (url) images.push(url);
+      }
+      if (!images.length) { showToast('❌ 이미지 업로드 실패'); return; }
+      image_url = images[0];
+    }
+    const ok = await insertRow('notice', { title, content: document.getElementById('noti-content').value, pinned: document.getElementById('noti-pin').checked, image_url, images });
     if (ok) { showToast('✅ 추가!'); ['noti-title','noti-content','noti-image'].forEach(id=>document.getElementById(id).value=''); document.getElementById('noti-pin').checked=false; loadNotice(); }
     else showToast('❌ 실패');
   }
@@ -581,10 +598,18 @@
   async function addDiary() {
     const title = document.getElementById('diary-title').value.trim();
     if (!title) { showToast('❗ 제목 필수!'); return; }
-    let image_url = null;
-    const imgFile = document.getElementById('diary-image').files[0];
-    if (imgFile) { showToast('🖼 이미지 업로드 중...'); image_url = await uploadImage(imgFile, 'diary'); if (!image_url) { showToast('❌ 이미지 업로드 실패'); return; } }
-    const ok = await insertRow('diary', { title, content: document.getElementById('diary-content').value, mood: document.getElementById('diary-mood').value, diary_date: document.getElementById('diary-date').value, image_url });
+    let image_url = null; let images = [];
+    const files = document.getElementById('diary-image').files;
+    if (files.length) {
+      showToast(`🖼 이미지 ${files.length}장 업로드 중...`);
+      for (const f of files) {
+        const url = await uploadImage(f, 'diary');
+        if (url) images.push(url);
+      }
+      if (!images.length) { showToast('❌ 이미지 업로드 실패'); return; }
+      image_url = images[0];
+    }
+    const ok = await insertRow('diary', { title, content: document.getElementById('diary-content').value, mood: document.getElementById('diary-mood').value, diary_date: document.getElementById('diary-date').value, image_url, images });
     if (ok) { showToast('✅ 추가!'); ['diary-title','diary-content','diary-date','diary-image'].forEach(id=>document.getElementById(id).value=''); loadDiary(); }
     else showToast('❌ 실패');
   }
@@ -619,6 +644,22 @@
     const ok = await insertRow('songs', { title, artist: document.getElementById('song-artist').value.trim(), genre: document.getElementById('song-genre').value, difficulty: diff });
     if (ok) { showToast('✅ 추가!'); document.getElementById('song-title').value=''; document.getElementById('song-artist').value=''; loadSong(); }
     else showToast('❌ 실패');
+  }
+
+  // ── 문의 ──
+  async function loadInquiry() {
+    const data = await fetchAll('inquiries', { order: 'created_at', asc: false });
+    const el = document.getElementById('inquiry-list');
+    if (!data.length) { el.innerHTML = '<div style="text-align:center;color:#ccc;padding:30px">문의가 없어요</div>'; return; }
+    el.innerHTML = data.map(q => `
+      <div style="background:#fff;border:1px solid var(--pink-light);border-radius:12px;padding:14px 16px;margin-bottom:9px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:14px;font-weight:700;color:var(--pink-dark)">${q.nickname||'익명'}</span>
+          <span style="font-size:11px;color:var(--text-soft)">${(q.created_at||'').slice(0,16).replace('T',' ')}</span>
+        </div>
+        <div style="font-size:14px;color:var(--text);white-space:pre-wrap;line-height:1.5">${(q.message||'').replace(/</g,'&lt;')}</div>
+        <div style="text-align:right;margin-top:8px"><button class="delete-btn" onclick="del('inquiries',${q.id},loadInquiry)">🗑 삭제</button></div>
+      </div>`).join('');
   }
 </script>
 </body>

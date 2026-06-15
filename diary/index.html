@@ -33,6 +33,18 @@
       padding-top: 14px; border-top: 1px solid var(--pink-light);
     }
     .post-img { display: block; max-width: 100%; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--pink-light); }
+    .cmt-wrap { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--pink-light); }
+    .cmt-title { font-size: 13px; font-weight: 700; color: var(--pink-dark); margin-bottom: 10px; }
+    .cmt-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+    .cmt-item { background: #fff5f8; border-radius: 10px; padding: 9px 12px; }
+    .cmt-item .cn { font-size: 12px; font-weight: 700; color: var(--pink-dark); }
+    .cmt-item .cm { font-size: 13px; color: var(--text); margin-top: 2px; white-space: pre-wrap; word-break: break-word; }
+    .cmt-empty { font-size: 12px; color: var(--text-soft); padding: 4px 0; }
+    .cmt-form { display: flex; gap: 6px; flex-wrap: wrap; }
+    .cmt-nick { width: 90px; padding: 9px 10px; border-radius: 9px; border: 1.5px solid var(--pink-light); font-size: 13px; outline: none; }
+    .cmt-msg { flex: 1; min-width: 120px; padding: 9px 12px; border-radius: 9px; border: 1.5px solid var(--pink-light); font-size: 13px; outline: none; }
+    .cmt-nick:focus, .cmt-msg:focus { border-color: var(--pink); }
+    .cmt-send { padding: 9px 16px; border-radius: 9px; border: none; background: var(--pink); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -80,19 +92,32 @@
       return;
     }
 
-    el.innerHTML = items.map(d => `
-      <div class="diary-item" onclick="this.classList.toggle('open')">
-        <div class="diary-header">
-          
+    el.innerHTML = items.map(d => {
+      const imgs = (d.images && d.images.length) ? d.images : (d.image_url ? [d.image_url] : []);
+      const imgHtml = imgs.map(u => `<img src="${u}" class="post-img" loading="lazy" alt="">`).join('');
+      return `
+      <div class="diary-item" data-id="${d.id}">
+        <div class="diary-header" onclick="toggleDiary(this)">
           <div class="diary-meta">
             <div class="diary-title">${d.title}</div>
             <div class="diary-date">${d.diary_date || ''}</div>
           </div>
           <span class="diary-arrow">›</span>
         </div>
-        <div class="diary-content">${d.image_url ? `<img src="${d.image_url}" class="post-img" loading="lazy" alt="">` : ''}${d.content || ''}</div>
-      </div>`
-    ).join('');
+        <div class="diary-content">
+          ${imgHtml}${d.content || ''}
+          <div class="cmt-wrap">
+            <div class="cmt-title">💬 댓글</div>
+            <div class="cmt-list" id="cmt-list-${d.id}"></div>
+            <div class="cmt-form">
+              <input class="cmt-nick" id="cmt-nick-${d.id}" placeholder="닉네임" onclick="event.stopPropagation()">
+              <input class="cmt-msg" id="cmt-msg-${d.id}" placeholder="댓글 달기..." onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter')addComment(${d.id})">
+              <button class="cmt-send" onclick="event.stopPropagation();addComment(${d.id})">등록</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
 
     const totalPages = Math.ceil(allData.length / PAGE_SIZE);
     const pg = document.getElementById('pagination');
@@ -105,6 +130,39 @@
       pg.appendChild(btn);
     }
   }
+  function toggleDiary(headerEl) {
+    const item = headerEl.closest('.diary-item');
+    const wasOpen = item.classList.contains('open');
+    item.classList.toggle('open');
+    if (!wasOpen) { loadComments(item.dataset.id); enableIframeAutoHeight(); }
+  }
+
+  let commentsCache = {};
+  async function loadComments(diaryId) {
+    const list = document.getElementById('cmt-list-' + diaryId);
+    if (!list) return;
+    const all = await fetchAll('comments', { order: 'created_at', asc: true });
+    const mine = all.filter(c => String(c.diary_id) === String(diaryId));
+    commentsCache[diaryId] = mine;
+    if (!mine.length) { list.innerHTML = '<div class="cmt-empty">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>'; return; }
+    list.innerHTML = mine.map(c => `
+      <div class="cmt-item">
+        <div class="cn">${(c.nickname||'익명').replace(/</g,'&lt;')}</div>
+        <div class="cm">${(c.message||'').replace(/</g,'&lt;')}</div>
+      </div>`).join('');
+    enableIframeAutoHeight();
+  }
+  async function addComment(diaryId) {
+    const msgEl = document.getElementById('cmt-msg-' + diaryId);
+    const nickEl = document.getElementById('cmt-nick-' + diaryId);
+    const msg = msgEl.value.trim();
+    if (!msg) { alert('댓글을 입력해주세요'); return; }
+    const nick = nickEl.value.trim() || '익명';
+    const ok = await insertRow('comments', { diary_id: diaryId, nickname: nick, message: msg });
+    if (ok) { msgEl.value=''; loadComments(diaryId); }
+    else alert('댓글 등록 실패 ㅠㅠ');
+  }
+
   init();
 </script>
 </body>

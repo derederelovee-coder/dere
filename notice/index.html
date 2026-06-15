@@ -86,7 +86,7 @@
             <span class="notice-date">${dateStr}</span>
             <span class="notice-arrow">›</span>
           </div>
-          <div class="notice-content">${n.image_url ? `<img src="${n.image_url}" class="post-img" loading="lazy" alt="">` : ''}${n.content || ''}</div>
+          <div class="notice-content">${((n.images&&n.images.length)?n.images:(n.image_url?[n.image_url]:[])).map(u=>`<img src="${u}" class="post-img" loading="lazy" alt="">`).join('')}${n.content || ''}</div>
         </div>`;
     }).join('');
   }
