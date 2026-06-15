@@ -15,7 +15,7 @@
     .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
     .cal-dow { padding:10px 4px; text-align:center; font-size:13px; font-weight:700; color:var(--pink); }
     .cal-dow:first-child { color:#e05; } .cal-dow:last-child { color:#4a9; }
-    .cal-cell { min-height:84px; border-top:1px solid var(--pink-light); border-right:1px solid var(--pink-light); padding:5px 5px 6px; position:relative; }
+    .cal-cell { height:84px; border-top:1px solid var(--pink-light); border-right:1px solid var(--pink-light); padding:5px 5px 6px; position:relative; overflow:hidden; }
     .cal-cell:nth-child(7n) { border-right:none; }
     .cal-cell.other { opacity:.35; }
     .cal-cell.today { background:#fff5f8; }
@@ -23,7 +23,7 @@
     .cal-date { font-size:13px; font-weight:700; color:var(--text-mid); padding:1px 3px; }
     .cal-cell:nth-child(7n+1) .cal-date { color:#e05; }
     .cal-cell:nth-child(7n) .cal-date { color:#4a9; }
-    .ev { font-size:10px; padding:3px 6px; border-radius:6px; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; }
+    .ev { font-size:10px; padding:3px 6px; border-radius:6px; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; max-width:100%; }
     .ev.on { background:#d6f0e4; color:#1f7a52; }       /* 방송 */
     .ev.off { background:#ffe0eb; color:#d95f7f; }       /* 휴방 */
 
@@ -44,7 +44,7 @@
       .cal-title { font-size:17px; }
       .cal-nav { width:32px; height:32px; font-size:14px; }
       .cal-dow { padding:7px 1px; font-size:11px; }
-      .cal-cell { min-height:62px; padding:3px 2px 4px; }
+      .cal-cell { height:62px; padding:3px 2px 4px; }
       .cal-date { font-size:11px; padding:0 2px; }
       .cal-cell.today .cal-date { width:18px; height:18px; }
       .ev { font-size:8px; padding:2px 3px; border-radius:4px; margin-top:2px; }
