@@ -143,7 +143,7 @@
       color: rgba(255,255,255,0.8); font-size: 13px; z-index: 2;
       pointer-events: none;
     }
-    .today-text { flex: 1; min-width: 240px; text-align: center; }
+    .today-text { flex: 1; min-width: 240px; text-align: center; align-self: flex-start; margin-top: -18px; }
     .today-text .card-head { margin-bottom: 8px; justify-content: center; }
     .today-quote {
       font-family: 'Noto Sans KR', sans-serif; font-weight: 700; font-size: 26px;
@@ -199,7 +199,7 @@
       display: flex; align-items: center; justify-content: center;
       padding: 10px; background: var(--pink-light);
       color: var(--pink-dark); border-radius: 999px;
-      text-decoration: none; font-size: 13px; font-weight: 600;
+      text-decoration: none; font-size: 15px; font-weight: 600;
       transition: all 0.2s; border: none; cursor: pointer;
     }
     .link-btn:hover { background: var(--pink); color: #fff; transform: translateY(-2px); }
@@ -343,7 +343,7 @@
 
   <!-- 방송 요일 -->
   <div class="card">
-    <div class="card-head">📅 이번주 방송 요일</div>
+    <div class="card-head">📅 방송 요일</div>
     <div class="day-row">
       <span class="day" id="day-0">일</span>
       <span class="day on" id="day-1">월</span>
@@ -397,18 +397,18 @@
   <div class="card">
     <div class="card-head">⭐ 데레 관련 링크!</div>
     <div class="link-grid">
-      <a id="link-youtube" href="#" class="link-btn" target="_blank"><img class="lk-icon" src="icons/youtube.png" alt="">YouTube</a>
-      <a id="link-fancafe" href="#" class="link-btn" target="_blank"><img class="lk-icon" src="icons/fancafe.jpg" alt="">Fan Cafe</a>
-      <a id="link-fancim" href="#" class="link-btn" target="_blank"><img class="lk-icon" src="icons/fancim.png" alt="">Fancim</a>
-      <a id="link-soop" href="#" class="link-btn" target="_blank"><img class="lk-icon" src="icons/soop.png" alt="">SOOP</a>
-      <a id="link-mfancim" href="#" class="link-btn" target="_blank"><img class="lk-icon" src="icons/mfancim.png" alt="">M Fancim</a>
-      <a id="link-heart" href="#" class="link-btn" target="_blank">♥ 코드 · EVTL5E</a>
+      <a id="link-youtube" href="#" class="link-btn" target="_blank">YouTube</a>
+      <a id="link-fancafe" href="#" class="link-btn" target="_blank">Fan Cafe</a>
+      <a id="link-fancim" href="#" class="link-btn" target="_blank">Fancim</a>
+      <a id="link-soop" href="#" class="link-btn" target="_blank">SOOP</a>
+      <a id="link-mfancim" href="#" class="link-btn" target="_blank">M Fancim</a>
+      <a id="link-heart" href="#" class="link-btn" target="_blank">M Fancim 입장 코드는 문의</a>
     </div>
   </div>
 
 </div>
 
-<footer style="margin-top:20px">© 2026 리데레 팬페이지 ♥</footer>
+<footer style="margin-top:20px; color:#000;">비지니스 문의 - derederelovee@gmail.com</footer>
 
 <div class="iq-ov" id="iq-ov" onclick="if(event.target===this)closeInquiry()">
   <div class="iq-modal">
