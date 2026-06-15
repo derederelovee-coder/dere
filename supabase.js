@@ -3,7 +3,7 @@
    ✅ 이 파일 상단 두 줄만 본인 값으로 교체!
    ============================================= */
 
-const SUPABASE_URL  = 'https://xbwlpldcnwjfpcwlmtnm.supabase.co';
+const SUPABASE_URL  = 'https://uahvowgqfewxnihanqgv.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhid2xwbGRjbndqZnBjd2xtdG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTU4MzMsImV4cCI6MjA5NzAzMTgzM30.hddiaeyySyABNZj6sdVbVGfycLVE1KDszc6vn4DuqXs';
 
 // ── Supabase 클라이언트 초기화 ──
