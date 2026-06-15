@@ -18,6 +18,21 @@
       transition: all 0.2s; cursor: pointer;
     }
     .upbo-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+    .upbo-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      object-fit: cover; margin: 0 auto 10px; display: block;
+      border: 3px solid var(--pink-light); background: var(--pink-light);
+    }
+    .upbo-avatar-fallback {
+      width: 64px; height: 64px; border-radius: 50%;
+      margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #ffd6e0, #ffb6c8); color: #fff;
+      font-size: 26px; font-weight: 700; border: 3px solid var(--pink-light);
+    }
+    .modal-avatar {
+      width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--pink-light); margin-bottom: 8px;
+    }
     
     .upbo-nick { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
     .upbo-count {
@@ -102,6 +117,15 @@
 
 
 
+  // SOOP 아이디 → 프로필 사진 주소 자동 조립
+  // 구조: //profile.img.sooplive.co.kr/LOGO/{앞2글자}/{아이디}/{아이디}.jpg
+  function soopAvatar(id) {
+    if (!id) return null;
+    id = id.trim().toLowerCase();
+    if (id.length < 2) return null;
+    return `https://profile.img.sooplive.co.kr/LOGO/${id.slice(0,2)}/${id}/${id}.jpg`;
+  }
+
   function renderCards(data) {
     const grouped = {};
     data.forEach(w => {
@@ -117,8 +141,15 @@
     }
 
     grid.innerHTML = Object.entries(grouped).map(([nick, items]) => {
+      const sid = items.find(it => it.soop_id)?.soop_id || '';
+      const av = soopAvatar(sid);
+      const initial = (nick || '?').charAt(0);
+      const avatarHtml = av
+        ? `<img class="upbo-avatar" src="${av}" alt="" onerror="this.outerHTML='<div class=\\'upbo-avatar-fallback\\'>${initial}</div>'">`
+        : `<div class="upbo-avatar-fallback">${initial}</div>`;
       return `
         <div class="upbo-card" onclick="showDetail('${nick.replace(/'/g,"\\'")}')">
+          ${avatarHtml}
           <div class="upbo-nick">${nick}</div>
           <span class="upbo-count">업보 ${items.length}</span>
         </div>`;
@@ -127,7 +158,14 @@
 
   function showDetail(nick) {
     const items = allData.filter(w => (w.nickname || w.title) === nick);
+    const sid = items.find(it => it.soop_id)?.soop_id || '';
+    const av = soopAvatar(sid);
+    const initial = (nick || '?').charAt(0);
+    const avatarHtml = av
+      ? `<img class="modal-avatar" src="${av}" alt="" onerror="this.style.display='none'">`
+      : '';
     document.getElementById('modal-content').innerHTML = `
+      ${avatarHtml}
       <div class="modal-nick">${nick}</div>
       <div class="modal-count">총 ${items.length}개의 업보</div>
       ${items.map((w, i) => `

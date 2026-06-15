@@ -87,3 +87,6 @@ CREATE POLICY "anon update profile"   ON profile FOR UPDATE USING (true) WITH CH
 -- (이미 테이블이 있으면 컬럼만 추가됨)
 ALTER TABLE notice ADD COLUMN IF NOT EXISTS image_url TEXT;
 ALTER TABLE diary  ADD COLUMN IF NOT EXISTS image_url TEXT;
+
+-- ── 6. 업보에 SOOP 아이디 컬럼 (시청자 프사 자동표시용) ──
+ALTER TABLE work ADD COLUMN IF NOT EXISTS soop_id TEXT;

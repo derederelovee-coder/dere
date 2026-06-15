@@ -407,8 +407,14 @@
     } catch(e) { console.log('profile load error', e); }
     const d = { ...defaults, ...saved };
 
-    // 프로필 사진 (localStorage 또는 Supabase Storage)
-    const avatarUrl = d.avatar || await getStorageAvatar();
+    // 프로필 사진: 업로드 사진 우선, 없으면 SOOP 아이디로 자동 조립
+    function soopAvatar(id) {
+      if (!id) return null;
+      id = id.trim().toLowerCase();
+      if (id.length < 2) return null;
+      return `https://profile.img.sooplive.co.kr/LOGO/${id.slice(0,2)}/${id}/${id}.jpg`;
+    }
+    const avatarUrl = d.avatar || soopAvatar(d['soop-id']) || await getStorageAvatar();
     if (avatarUrl) {
       const img = document.getElementById('avatarImg');
       const emoji = document.getElementById('avatarEmoji');

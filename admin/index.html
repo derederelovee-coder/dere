@@ -69,10 +69,16 @@
         </div>
       </div>
       <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--pink-light)">
+        <label class="input-label">또는 SOOP 아이디로 프사 자동 (사진 업로드 안 했을 때 사용)</label>
+        <input class="input" id="f-soop-id" type="text" placeholder="rlawkdbs01">
+        <div style="font-size:11px;color:var(--text-soft);margin-top:6px">SOOP 아이디만 넣으면 프사가 자동으로 따라와요. 저장 버튼 누르세요.</div>
+      </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--pink-light)">
         <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px">현재 프로필 사진</div>
         <img id="current-avatar" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--pink-light);display:none">
         <span id="no-avatar" style="font-size:12px;color:var(--text-soft)">없음</span>
       </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-primary" onclick="saveLocalProfile()">저장 ♥</button></div>
     </div>
     <div class="card">
       <div class="card-title">⭐ 한마디 & 하고픈 말</div>
@@ -149,6 +155,7 @@
       <div class="card-title">업보 추가</div>
       <div class="form-grid">
         <div class="form-field full"><label class="input-label">닉네임 *</label><input class="input" id="work-nick" placeholder="칫칫치초"></div>
+        <div class="form-field full"><label class="input-label">SOOP 아이디 (프사 자동표시)</label><input class="input" id="work-soop" placeholder="rlawkdbs01"></div>
         <div class="form-field full"><label class="input-label">업보 내용 *</label><input class="input" id="work-title" placeholder="고양이한테 뒤통수 맞음"></div>
         <div class="form-field full"><label class="input-label">상세 설명</label><textarea class="input" id="work-desc" rows="2"></textarea></div>
         <div class="form-field"><label class="input-label">카테고리</label><input class="input" id="work-category" placeholder="동물, 게임"></div>
@@ -222,10 +229,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../supabase.js"></script>
 <script>
-  const ADMIN_PASSWORD = 'asdf0110!!';
+  const ADMIN_PASSWORD = '1234';
 
   const profileKeys = [
-    'head-sub','quote','msg',
+    'head-sub','quote','msg','soop-id',
     'info-name','info-catchphrase','info-tags','info-mbti','info-fandom','info-dates',
     'link-soop','link-youtube','link-fancafe','link-fancim','link-mfancim','link-heart','link-code'
   ];
@@ -411,8 +418,8 @@
     const nick = document.getElementById('work-nick').value.trim();
     const title = document.getElementById('work-title').value.trim();
     if (!nick||!title) { showToast('❗ 닉네임/내용 필수!'); return; }
-    const ok = await insertRow('work', { nickname: nick, title, description: document.getElementById('work-desc').value, category: document.getElementById('work-category').value, event_date: document.getElementById('work-date').value });
-    if (ok) { showToast('✅ 추가!'); ['work-nick','work-title','work-desc','work-category','work-date'].forEach(id=>document.getElementById(id).value=''); loadWork(); }
+    const ok = await insertRow('work', { nickname: nick, soop_id: document.getElementById('work-soop').value.trim(), title, description: document.getElementById('work-desc').value, category: document.getElementById('work-category').value, event_date: document.getElementById('work-date').value });
+    if (ok) { showToast('✅ 추가!'); ['work-nick','work-soop','work-title','work-desc','work-category','work-date'].forEach(id=>document.getElementById(id).value=''); loadWork(); }
     else showToast('❌ 실패');
   }
 
