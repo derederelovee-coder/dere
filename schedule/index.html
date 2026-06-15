@@ -7,48 +7,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
   <style>
-    .calendar { background: var(--pink-card); border-radius: 20px; border: 1.5px solid var(--pink-light); box-shadow: var(--shadow); overflow: hidden; }
-    .cal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; }
-    .cal-title { font-size: 20px; font-weight: 700; color: var(--text); }
-    .cal-nav { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--pink-light); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-mid); transition: all 0.2s; }
-    .cal-nav:hover { background: var(--pink-light); }
-    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); }
-    .cal-dow { padding: 10px 4px; text-align: center; font-size: 13px; font-weight: 700; color: var(--pink); }
-    .cal-dow:first-child { color: #e05; }
-    .cal-dow:last-child { color: #4a9; }
-    .cal-cell { height: 80px; border-top: 1px solid var(--pink-light); border-right: 1px solid var(--pink-light); padding: 4px; position: relative; overflow: hidden; }
-    .cal-cell:nth-child(7n) { border-right: none; }
-    .cal-cell.other { opacity: 0.3; }
-    .cal-cell.today { background: #f0fbff; }
-    .cal-date { font-size: 13px; font-weight: 600; color: var(--text-mid); padding: 2px 4px; }
-    .cal-cell:nth-child(7n+1) .cal-date { color: #e05; }
-    .cal-cell:nth-child(7n) .cal-date { color: #4a9; }
-    .cal-event { font-size: 10px; padding: 2px 5px; border-radius: 4px; margin: 1px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; font-weight: 500; cursor: default; position: relative; }
-    
-    
-    .cal-event.normal { background: var(--pink-light); color: var(--pink-dark); }
-    .cal-event.special { background: #d4edda; color: #2d6a4f; }
-    .cal-event.collab { background: #cfe2ff; color: #084298; }
-    .cal-event.off { background: #ffe0eb; color: #d95f7f; }
+    .calendar { background:#fff; border-radius:20px; border:1.5px solid var(--pink-light); box-shadow:var(--shadow); overflow:hidden; }
+    .cal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; }
+    .cal-title { font-size:20px; font-weight:800; color:var(--text); }
+    .cal-nav { width:38px; height:38px; border-radius:50%; border:1.5px solid var(--pink-light); background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--text-mid); transition:all .2s; }
+    .cal-nav:hover { background:var(--pink-light); }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+    .cal-dow { padding:10px 4px; text-align:center; font-size:13px; font-weight:700; color:var(--pink); }
+    .cal-dow:first-child { color:#e05; } .cal-dow:last-child { color:#4a9; }
+    .cal-cell { min-height:84px; border-top:1px solid var(--pink-light); border-right:1px solid var(--pink-light); padding:5px 5px 6px; position:relative; }
+    .cal-cell:nth-child(7n) { border-right:none; }
+    .cal-cell.other { opacity:.35; }
+    .cal-cell.today { background:#fff5f8; }
+    .cal-cell.today .cal-date { background:var(--pink); color:#fff; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; }
+    .cal-date { font-size:13px; font-weight:700; color:var(--text-mid); padding:1px 3px; }
+    .cal-cell:nth-child(7n+1) .cal-date { color:#e05; }
+    .cal-cell:nth-child(7n) .cal-date { color:#4a9; }
+    .ev { font-size:10px; padding:3px 6px; border-radius:6px; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; }
+    .ev.on { background:#d6f0e4; color:#1f7a52; }       /* 방송 */
+    .ev.off { background:#ffe0eb; color:#d95f7f; }       /* 휴방 */
 
-    .upcoming-item { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--pink-light); }
-    .upcoming-item:last-child { border-bottom: none; }
-    .upcoming-date-box { flex-shrink: 0; width: 76px; text-align: center; }
-    .upcoming-date { font-size: 14px; font-weight: 700; color: var(--pink-dark); }
-    .upcoming-day { font-size: 12px; color: var(--text-soft); }
-    .upcoming-bar { width: 3px; height: 44px; border-radius: 999px; flex-shrink: 0; }
-    .upcoming-bar.normal { background: var(--pink); }
-    .upcoming-bar.special { background: #2d6a4f; }
-    .upcoming-bar.collab { background: #084298; }
-    .upcoming-bar.off { background: #d95f7f; }
-    .upcoming-info { flex: 1; }
-    .upcoming-title { font-size: 16px; font-weight: 600; color: var(--text); }
-    .upcoming-time { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
-    .upcoming-tag { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
-    .upcoming-tag.normal { background: var(--pink-light); color: var(--pink-dark); }
-    .upcoming-tag.special { background: #d4edda; color: #2d6a4f; }
-    .upcoming-tag.collab { background: #cfe2ff; color: #084298; }
-    .upcoming-tag.off { background: #ffe0eb; color: #d95f7f; }
+    .up-item { display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:14px; background:#fff; border:1px solid var(--pink-light); margin-bottom:9px; border-left:5px solid var(--pink); }
+    .up-item.on { border-left-color:#3fae7e; }
+    .up-item.off { border-left-color:#f4a; }
+    .up-date { flex-shrink:0; width:84px; }
+    .up-d1 { font-size:13px; font-weight:800; color:var(--text); }
+    .up-info { flex:1; }
+    .up-title { font-size:15px; font-weight:700; color:var(--text); }
+    .up-time { font-size:12px; color:var(--text-soft); margin-top:2px; }
+    .up-badge { padding:5px 14px; border-radius:999px; font-size:12px; font-weight:700; flex-shrink:0; }
+    .up-badge.on { background:#d6f0e4; color:#1f7a52; }
+    .up-badge.off { background:#ffe0eb; color:#d95f7f; }
   </style>
 </head>
 <body>
@@ -59,6 +48,7 @@
   <a href="index.html" class="active">일정</a>
   <a href="../work/">업보</a>
   <a href="../diary/">일기</a>
+  <a href="../song/">노래책</a>
 </div></nav>
 
 <div class="container">
@@ -72,7 +62,7 @@
     <div class="cal-grid" id="calGrid"></div>
   </div>
   <div class="card">
-    <div class="card-title">다가오는 일정</div>
+    <div class="card-title">📋 다가오는 일정</div>
     <div id="upcoming"><div class="spinner"></div></div>
   </div>
 </div>
@@ -83,18 +73,21 @@
 <script>
   let currentYear, currentMonth, allSchedule = [];
   const DAYS = ['일','월','화','수','목','금','토'];
-  const TYPE_CLASS = { '일반':'normal', '특별':'special', '콜라보':'collab', '휴방':'off' };
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  // 유형: '휴방'이면 off, 그 외(방송/특별/콜라보/일반)는 on
+  function kind(t){ return t === '휴방' ? 'off' : 'on'; }
 
   async function init() {
     const now = new Date(); currentYear = now.getFullYear(); currentMonth = now.getMonth();
     allSchedule = await fetchAll('schedule', { order: 'date', asc: true });
     renderCalendar(); renderUpcoming();
+    enableIframeAutoHeight();
   }
   function changeMonth(d) {
     currentMonth += d;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    renderCalendar();
+    renderCalendar(); enableIframeAutoHeight();
   }
   function renderCalendar() {
     document.getElementById('calTitle').textContent = `${currentYear}년 ${currentMonth+1}월`;
@@ -111,9 +104,9 @@
       const isToday = today.getFullYear()===currentYear && today.getMonth()===currentMonth && today.getDate()===d;
       const events = allSchedule.filter(s => s.date === dateStr);
       const evHtml = events.map(e => {
-        const cls = TYPE_CLASS[e.type] || 'normal';
-        const full = (e.time ? e.time+' ' : '') + e.title;
-        return `<span class="cal-event ${cls}" title="${full}">${full}</span>`;
+        const k = kind(e.type);
+        const label = (e.time ? e.time+' ' : '') + (e.title || (k==='off'?'휴방':'방송'));
+        return `<div class="ev ${k}" title="${esc(label)}">${esc(label)}</div>`;
       }).join('');
       html += `<div class="cal-cell${isToday?' today':''}"><span class="cal-date">${d}</span>${evHtml}</div>`;
     }
@@ -124,12 +117,17 @@
   }
   function renderUpcoming() {
     const today = new Date().toISOString().split('T')[0];
-    const upcoming = allSchedule.filter(s => s.date >= today).slice(0, 10);
+    const upcoming = allSchedule.filter(s => s.date >= today).slice(0, 12);
     const el = document.getElementById('upcoming');
     if (!upcoming.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>다가오는 일정이 없어요</div>'; return; }
     el.innerHTML = upcoming.map(s => {
-      const d = new Date(s.date); const cls = TYPE_CLASS[s.type] || 'normal';
-      return `<div class="upcoming-item"><div class="upcoming-date-box"><div class="upcoming-date">${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}</div><div class="upcoming-day">(${DAYS[d.getDay()]})</div></div><div class="upcoming-bar ${cls}"></div><div class="upcoming-info"><div class="upcoming-title">${s.title}</div><div class="upcoming-time">${s.time||''}</div></div><span class="upcoming-tag ${cls}">${s.type||'방송'}</span></div>`;
+      const d = new Date(s.date + 'T00:00:00'); const k = kind(s.type);
+      const label = k==='off' ? '휴방' : '방송';
+      return `<div class="up-item ${k}">
+        <div class="up-date"><div class="up-d1">${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} (${DAYS[d.getDay()]})</div></div>
+        <div class="up-info"><div class="up-title">${esc(s.title || label)}</div>${s.time?`<div class="up-time">${esc(s.time)}</div>`:''}</div>
+        <span class="up-badge ${k}">${label}</span>
+      </div>`;
     }).join('');
   }
   init();

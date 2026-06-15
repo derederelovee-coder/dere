@@ -3,123 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>리데레 · 노래방</title>
+  <title>리데레 · 노래책</title>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
   <style>
-    .search-wrap { display: flex; gap: 8px; margin-bottom: 16px; }
-    .search-wrap .input { flex: 1; }
-    .song-count { font-size: 12px; color: var(--text-soft); margin-bottom: 8px; }
+    .song-head { display:flex; align-items:center; gap:9px; margin-bottom:14px; }
+    .song-head .t { font-size:22px; font-weight:800; color:var(--pink-dark); }
+    .filter-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+    .search-box { flex:1; min-width:200px; padding:12px 18px; border-radius:999px; border:1.5px solid var(--pink-light); font-size:14px; outline:none; background:#fff; }
+    .search-box:focus { border-color:var(--pink); }
+    .genre-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+    .gt { padding:8px 15px; border-radius:999px; border:1.5px solid var(--pink-light); background:#fff; color:var(--text-soft); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; }
+    .gt.active { background:var(--pink); color:#fff; border-color:var(--pink); }
+    .count-line { font-size:13px; color:var(--text-soft); margin:14px 0 6px; }
+    table { width:100%; border-collapse:collapse; }
+    thead th { text-align:left; font-size:12px; font-weight:700; color:var(--pink-dark); padding:10px 12px; background:#fff5f8; }
+    thead th:first-child { border-radius:8px 0 0 8px; } thead th:last-child { border-radius:0 8px 8px 0; }
+    tbody td { padding:13px 12px; border-bottom:1px solid var(--pink-light); font-size:14px; color:var(--text); }
+    tbody tr:hover td { background:#fff9fb; }
+    .s-num { color:var(--text-soft); font-size:13px; width:36px; }
+    .s-title { font-weight:600; }
+    .s-genre { font-size:11px; background:var(--pink-light); color:var(--pink-dark); padding:3px 10px; border-radius:999px; }
+    .s-diff { display:inline-flex; gap:3px; }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--pink-light); }
+    .dot.on { background:var(--pink); }
+    .pagination { display:flex; justify-content:center; gap:6px; margin-top:16px; }
+    .pg { width:34px; height:34px; border-radius:50%; border:1.5px solid var(--pink-light); background:#fff; color:var(--text-mid); font-size:13px; font-weight:600; cursor:pointer; }
+    .pg.active { background:var(--pink); color:#fff; border-color:var(--pink); }
+    @media (max-width:560px){ .hide-m { display:none; } }
   </style>
 </head>
 <body>
-
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="../index.html" class="nav-logo">리데레 🎀</a>
-    <a href="../index.html">프로필</a>
-    <a href="../schedule/">일정</a>
-    <a href="index.html" class="active">노래</a>
-    <a href="../work/">업보</a>
-  </div>
-</nav>
+<nav class="nav"><div class="nav-inner">
+  <a href="../index.html" class="nav-logo">리데레 🎀</a>
+  <a href="../index.html">프로필</a>
+  <a href="../notice/">공지</a>
+  <a href="../schedule/">일정</a>
+  <a href="../work/">업보</a>
+  <a href="../diary/">일기</a>
+  <a href="index.html" class="active">노래책</a>
+</div></nav>
 
 <div class="container">
-  <div class="page-title">🎵 노래방 목록</div>
-  <div class="page-subtitle">리데레가 방송에서 부른 노래들이에요 ♡</div>
-
-  <!-- 검색 -->
-  <div class="card" style="padding: 16px 20px;">
-    <div class="search-wrap">
-      <input class="input" id="searchInput" placeholder="🔍 제목 또는 가수 검색..." oninput="filterSongs()">
-    </div>
-    <div class="song-count" id="songCount"></div>
-  </div>
-
-  <!-- 목록 -->
   <div class="card">
+    <div class="song-head"><span style="font-size:22px">🎵</span><span class="t">노래책</span></div>
+    <div class="filter-row">
+      <input class="search-box" id="search" placeholder="🔍 곡명 · 아티스트 검색...">
+    </div>
+    <div class="genre-tabs" id="genre-tabs"></div>
+    <div class="count-line" id="count"></div>
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>제목</th>
-            <th>가수</th>
-            <th>장르</th>
-            <th>날짜</th>
-          </tr>
-        </thead>
-        <tbody id="song-tbody">
-          <tr><td colspan="5"><div class="spinner"></div></td></tr>
-        </tbody>
+        <thead><tr><th class="s-num">#</th><th>제목</th><th class="hide-m">아티스트</th><th>장르</th><th>난이도</th></tr></thead>
+        <tbody id="song-body"><tr><td colspan="5"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
+    <div class="pagination" id="pagination"></div>
   </div>
-
-  <div class="pagination" id="pagination"></div>
 </div>
 <footer>© 2026 리데레 팬페이지 ♥</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../supabase.js"></script>
 <script>
-  const PAGE_SIZE = 15;
-  let allSongs = [];
-  let filtered = [];
-  let currentPage = 1;
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  const GENRES = ['전체','K-Pop','J-Pop','Pop','중국','애교송','기타'];
+  const PAGE = 30;
+  let songs = [], curGenre = '전체', curPage = 1, keyword = '';
 
   async function init() {
-    allSongs = await fetchAll('song', { order: 'created_at', asc: false });
-    filtered = allSongs;
-    renderPage(1);
+    songs = await fetchAll('songs', { order: 'id', asc: true });
+    renderGenres(); render();
+    enableIframeAutoHeight();
   }
-
-  function filterSongs() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    filtered = allSongs.filter(s =>
-      s.title?.toLowerCase().includes(q) || s.artist?.toLowerCase().includes(q)
-    );
-    renderPage(1);
+  function renderGenres() {
+    document.getElementById('genre-tabs').innerHTML = GENRES.map(g =>
+      `<button class="gt ${g===curGenre?'active':''}" onclick="selGenre('${g}')">${g}</button>`).join('');
   }
+  function selGenre(g){ curGenre=g; curPage=1; renderGenres(); render(); enableIframeAutoHeight(); }
 
-  function renderPage(page) {
-    currentPage = page;
-    const start = (page - 1) * PAGE_SIZE;
-    const items = filtered.slice(start, start + PAGE_SIZE);
-    const tbody = document.getElementById('song-tbody');
-    document.getElementById('songCount').textContent = `총 ${filtered.length}곡`;
-
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🎵</div>곡이 없어요</div></td></tr>`;
-      document.getElementById('pagination').innerHTML = '';
-      return;
-    }
-
-    tbody.innerHTML = items.map((s, i) => `
-      <tr>
-        <td style="color:var(--text-soft);font-size:12px">${start + i + 1}</td>
-        <td><strong>${s.title}</strong></td>
-        <td style="color:var(--text-mid)">${s.artist}</td>
-        <td><span class="badge badge-pink" style="font-size:11px">${s.genre || '-'}</span></td>
-        <td style="color:var(--text-soft);font-size:12px">${s.sung_date || '-'}</td>
-      </tr>`
-    ).join('');
-
-    // 페이지네이션
-    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-    const pg = document.getElementById('pagination');
-    pg.innerHTML = '';
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement('button');
-      btn.className = 'page-btn' + (i === page ? ' active' : '');
-      btn.textContent = i;
-      btn.onclick = () => renderPage(i);
-      pg.appendChild(btn);
+  function filtered() {
+    return songs.filter(s => {
+      const okG = curGenre==='전체' || s.genre===curGenre;
+      const q = keyword.toLowerCase();
+      const okQ = !q || (s.title||'').toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q);
+      return okG && okQ;
+    });
+  }
+  function render() {
+    const list = filtered();
+    const totalPages = Math.max(1, Math.ceil(list.length / PAGE));
+    if (curPage > totalPages) curPage = 1;
+    const pageItems = list.slice((curPage-1)*PAGE, curPage*PAGE);
+    document.getElementById('count').textContent = `총 ${list.length}곡 · ${curPage}/${totalPages} 페이지`;
+    const body = document.getElementById('song-body');
+    if (!list.length) { body.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">🎵</div>노래가 없어요</div></td></tr>'; document.getElementById('pagination').innerHTML=''; return; }
+    body.innerHTML = pageItems.map((s, i) => {
+      const num = (curPage-1)*PAGE + i + 1;
+      const diff = parseInt(s.difficulty)||0;
+      let dots=''; for(let k=1;k<=5;k++) dots+=`<span class="dot${k<=diff?' on':''}"></span>`;
+      return `<tr>
+        <td class="s-num">${num}</td>
+        <td class="s-title">${esc(s.title)}</td>
+        <td class="hide-m">${esc(s.artist)||'-'}</td>
+        <td><span class="s-genre">${esc(s.genre)||'기타'}</span></td>
+        <td><span class="s-diff">${dots}</span></td>
+      </tr>`;
+    }).join('');
+    const pg = document.getElementById('pagination'); pg.innerHTML='';
+    if (totalPages>1) for(let i=1;i<=totalPages;i++){
+      const b=document.createElement('button'); b.className='pg'+(i===curPage?' active':''); b.textContent=i;
+      b.onclick=()=>{ curPage=i; render(); enableIframeAutoHeight(); window.scrollTo(0,0); };
+      pg.appendChild(b);
     }
   }
-
+  document.getElementById('search').addEventListener('input', e=>{ keyword=e.target.value.trim(); curPage=1; render(); enableIframeAutoHeight(); });
   init();
-  if (window !== window.parent) initIframeResize();
 </script>
 </body>
 </html>

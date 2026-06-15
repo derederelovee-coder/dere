@@ -49,6 +49,7 @@
       <button class="tab-btn" onclick="switchTab('schedule',this)">📅 일정</button>
       <button class="tab-btn" onclick="switchTab('work',this)">⚡ 업보</button>
       <button class="tab-btn" onclick="switchTab('diary',this)">📝 일기</button>
+      <button class="tab-btn" onclick="switchTab('song',this)">🎵 노래</button>
     </div>
   </div>
 
@@ -133,20 +134,19 @@
     <div class="card">
       <div class="card-title">일정 추가</div>
       <div class="form-grid">
-        <div class="form-field full"><label class="input-label">제목 *</label><input class="input" id="sch-title"></div>
         <div class="form-field"><label class="input-label">날짜 *</label><input class="input" id="sch-date" type="date"></div>
-        <div class="form-field"><label class="input-label">시간</label><input class="input" id="sch-time" placeholder="오후 8시"></div>
         <div class="form-field"><label class="input-label">유형</label>
-          <select class="input" id="sch-type"><option value="일반">일반</option><option value="특별">특별</option><option value="콜라보">콜라보</option><option value="휴방">휴방</option></select>
+          <select class="input" id="sch-type"><option value="방송">방송</option><option value="휴방">휴방</option></select>
         </div>
-        <div class="form-field"><label class="input-label">메모</label><input class="input" id="sch-note"></div>
+        <div class="form-field"><label class="input-label">시간</label><input class="input" id="sch-time" placeholder="오후 8시"></div>
+        <div class="form-field full"><label class="input-label">제목 (휴방이면 비워도 됨)</label><input class="input" id="sch-title" placeholder="방송 제목"></div>
         <div class="form-field full" style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="addSchedule()">+ 추가</button></div>
       </div>
     </div>
     <div class="card">
       <div class="card-title">등록된 일정</div>
-      <div class="table-wrap"><table><thead><tr><th>날짜</th><th>제목</th><th>유형</th><th>삭제</th></tr></thead>
-      <tbody id="sch-list"><tr><td colspan="4"><div class="spinner"></div></td></tr></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>날짜</th><th>시간</th><th>유형</th><th>제목</th><th>삭제</th></tr></thead>
+      <tbody id="sch-list"><tr><td colspan="5"><div class="spinner"></div></td></tr></tbody></table></div>
     </div>
   </div>
 
@@ -266,6 +266,28 @@
     </div>
   </div>
 
+  <!-- 노래 탭 -->
+  <div class="tab-panel" id="tab-song">
+    <div class="card">
+      <div class="card-title">곡 추가</div>
+      <div class="form-grid">
+        <div class="form-field"><label class="input-label">장르</label>
+          <select class="input" id="song-genre"><option>K-Pop</option><option>J-Pop</option><option>Pop</option><option>중국</option><option>애교송</option><option>기타</option></select>
+        </div>
+        <div class="form-field"><label class="input-label">아티스트</label><input class="input" id="song-artist" placeholder="아티스트명"></div>
+        <div class="form-field"><label class="input-label">제목 *</label><input class="input" id="song-title" placeholder="곡명"></div>
+        <div class="form-field"><label class="input-label">난이도 (1~5)</label><input class="input" id="song-diff" type="number" min="1" max="5" value="3"></div>
+        <div class="form-field full" style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="addSong()">+ 추가</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">노래 목록</div>
+      <input class="input" id="song-search" placeholder="🔍 검색..." style="margin-bottom:12px" oninput="renderSongs()">
+      <div class="table-wrap"><table><thead><tr><th>제목</th><th>아티스트</th><th>장르</th><th>난이도</th><th>삭제</th></tr></thead>
+      <tbody id="song-list"><tr><td colspan="5"><div class="spinner"></div></td></tr></tbody></table></div>
+    </div>
+  </div>
+
 </div>
 <footer>© 2026 리데레 관리자 ♥</footer>
 <div class="toast" id="toast"></div>
@@ -286,7 +308,7 @@
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('adminBody').style.display = 'flex';
       loadProfileFields();
-      loadNotice(); loadSchedule(); loadWork(); loadDiary();
+      loadNotice(); loadSchedule(); loadWork(); loadDiary(); loadSong();
     } else {
       document.getElementById('loginErr').textContent = '비밀번호가 틀렸어요 >﹏<';
     }
@@ -396,15 +418,21 @@
   async function loadSchedule() {
     const data = await fetchAll('schedule', { order: 'date', asc: true });
     const t = document.getElementById('sch-list');
-    if (!data.length) { t.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
-    t.innerHTML = data.map(s => `<tr><td>${s.date}</td><td>${s.title}</td><td><span class="badge badge-pink">${s.type||'-'}</span></td><td><button class="delete-btn" onclick="del('schedule',${s.id},loadSchedule)">🗑</button></td></tr>`).join('');
+    if (!data.length) { t.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
+    t.innerHTML = data.map(s => {
+      const isOff = s.type === '휴방';
+      const badge = isOff ? '<span class="badge" style="background:#ffe0eb;color:#d95f7f">휴방</span>' : '<span class="badge" style="background:#d6f0e4;color:#1f7a52">방송</span>';
+      return `<tr><td>${s.date}</td><td>${s.time||'-'}</td><td>${badge}</td><td>${s.title||'-'}</td><td><button class="delete-btn" onclick="del('schedule',${s.id},loadSchedule)">🗑</button></td></tr>`;
+    }).join('');
   }
   async function addSchedule() {
-    const title = document.getElementById('sch-title').value.trim();
     const date = document.getElementById('sch-date').value;
-    if (!title||!date) { showToast('❗ 제목/날짜 필수!'); return; }
-    const ok = await insertRow('schedule', { title, date, time: document.getElementById('sch-time').value, type: document.getElementById('sch-type').value, note: document.getElementById('sch-note').value });
-    if (ok) { showToast('✅ 추가!'); ['sch-title','sch-date','sch-time','sch-note'].forEach(id=>document.getElementById(id).value=''); loadSchedule(); }
+    if (!date) { showToast('❗ 날짜 필수!'); return; }
+    const type = document.getElementById('sch-type').value;
+    let title = document.getElementById('sch-title').value.trim();
+    if (!title) title = (type === '휴방' ? '휴방' : '방송');
+    const ok = await insertRow('schedule', { title, date, time: document.getElementById('sch-time').value, type });
+    if (ok) { showToast('✅ 추가!'); ['sch-title','sch-date','sch-time'].forEach(id=>document.getElementById(id).value=''); loadSchedule(); }
     else showToast('❌ 실패');
   }
 
@@ -565,6 +593,32 @@
     if (!confirm('정말 삭제?')) return;
     const ok = await deleteRow(table, id);
     if (ok) { showToast('🗑 삭제!'); fn(); } else showToast('❌ 실패');
+  }
+
+  // ── 노래 ──
+  let songData = [];
+  async function loadSong() {
+    songData = await fetchAll('songs', { order: 'id', asc: true });
+    renderSongs();
+  }
+  function renderSongs() {
+    const q = (document.getElementById('song-search')?.value || '').trim().toLowerCase();
+    const list = songData.filter(s => !q || (s.title||'').toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q));
+    const t = document.getElementById('song-list');
+    if (!songData.length) { t.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
+    t.innerHTML = list.map(s => {
+      const d = parseInt(s.difficulty)||0; let stars=''; for(let k=1;k<=d;k++) stars+='⭐';
+      return `<tr><td>${s.title}</td><td>${s.artist||'-'}</td><td><span class="badge badge-pink">${s.genre||'기타'}</span></td><td>${stars||'-'}</td><td><button class="delete-btn" onclick="del('songs',${s.id},loadSong)">🗑</button></td></tr>`;
+    }).join('');
+  }
+  async function addSong() {
+    const title = document.getElementById('song-title').value.trim();
+    if (!title) { showToast('❗ 제목 필수!'); return; }
+    let diff = parseInt(document.getElementById('song-diff').value)||3;
+    diff = Math.min(5, Math.max(1, diff));
+    const ok = await insertRow('songs', { title, artist: document.getElementById('song-artist').value.trim(), genre: document.getElementById('song-genre').value, difficulty: diff });
+    if (ok) { showToast('✅ 추가!'); document.getElementById('song-title').value=''; document.getElementById('song-artist').value=''; loadSong(); }
+    else showToast('❌ 실패');
   }
 </script>
 </body>
