@@ -6,6 +6,11 @@
   <title>리데레</title>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
+    @font-face {
+      font-family: 'AndongKaturi';
+      src: url('https://cdn.jsdelivr.net/gh/webdesignfarm/font/AndongKaturi.woff') format('woff');
+      font-display: swap;
+    }
     :root {
       --pink: #ff8fab;
       --pink-dark: #d95f7f;
@@ -13,6 +18,7 @@
       --pink-bg: #fff0f3;
       --pink-card: #fff8f9;
       --pen: 'Nanum Pen Script', cursive;
+      --katuri: 'AndongKaturi', 'Nanum Pen Script', cursive;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -45,10 +51,11 @@
     }
     .nav-inner { display: flex; align-items: center; max-width: 900px; width: 100%; }
     a.nav-logo {
-      font-family: var(--pen); font-size: 30px !important;
+      font-family: var(--katuri); font-size: 30px !important;
       color: #e8739a !important; padding: 10px 12px;
       text-decoration: none; margin-right: auto;
       line-height: 1; white-space: nowrap; flex-shrink: 0;
+      letter-spacing: 1px;
     }
     .nav a {
       padding: 18px 16px; font-size: 15px; font-weight: 500;
@@ -247,7 +254,7 @@
 
 <nav class="nav">
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo">리데레 🎀</a>
+    <a href="index.html" class="nav-logo">RIDERE</a>
     <a href="index.html" class="active">프로필</a>
     <a href="notice/">공지</a>
     <a href="schedule/">일정</a>
@@ -325,7 +332,7 @@
 
   <!-- 방송 요일 -->
   <div class="card">
-    <div class="card-head">📅 이번주 방송 요일</div>
+    <div class="card-head">📅 방송 요일</div>
     <div class="day-row">
       <span class="day" id="day-0">일</span>
       <span class="day on" id="day-1">월</span>
