@@ -38,8 +38,8 @@
     .cmt-title { font-size: 15px; font-weight: 700; color: var(--pink-dark); margin-bottom: 10px; }
     .cmt-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
     .cmt-list:empty { margin-bottom: 0; }
-    .cmt-item { background: #fff5f8; border-radius: 10px; padding: 9px 13px; }
-    .cmt-item .cn { font-size: 13px; font-weight: 700; color: var(--pink-dark); }
+    .cmt-item { background: #fff5f8; border-radius: 10px; padding: 9px 13px; white-space: normal; }
+    .cmt-item .cn { font-size: 13px; font-weight: 700; color: var(--pink-dark); white-space: normal; }
     .cmt-item .cm { font-size: 14px; color: var(--text); margin-top: 3px; white-space: pre-wrap; word-break: break-word; line-height: 1.5; }
     .cmt-empty { font-size: 13px; color: var(--text-soft); padding: 2px 0 8px; }
     .cmt-form { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -149,11 +149,7 @@
     const mine = all.filter(c => String(c.diary_id) === String(diaryId));
     commentsCache[diaryId] = mine;
     if (!mine.length) { list.innerHTML = '<div class="cmt-empty">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>'; return; }
-    list.innerHTML = mine.map(c => `
-      <div class="cmt-item">
-        <div class="cn">${(c.nickname||'익명').replace(/</g,'&lt;')}</div>
-        <div class="cm">${(c.message||'').replace(/</g,'&lt;')}</div>
-      </div>`).join('');
+    list.innerHTML = mine.map(c => `<div class="cmt-item"><div class="cn">${(c.nickname||'익명').replace(/</g,'&lt;')}</div><div class="cm">${(c.message||'').replace(/</g,'&lt;')}</div></div>`).join('');
     enableIframeAutoHeight();
   }
   async function addComment(diaryId) {
