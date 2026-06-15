@@ -15,8 +15,8 @@
     .search-box:focus { border-color:var(--pink); }
 
     .viewer-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    @media (max-width:680px){ .viewer-grid{ grid-template-columns:repeat(2,1fr);} }
-    @media (max-width:420px){ .viewer-grid{ grid-template-columns:1fr;} }
+    @media (max-width:680px){ .viewer-grid{ grid-template-columns:repeat(2,1fr); gap:9px;} }
+    @media (max-width:380px){ .viewer-grid{ grid-template-columns:repeat(2,1fr); gap:8px;} .viewer-card{ padding:14px 8px;} .viewer-av,.viewer-av-fb{ width:52px; height:52px;} }
     .viewer-card {
       background:#fff; border:1.5px solid var(--pink-light); border-radius:18px;
       padding:20px 14px; text-align:center; cursor:pointer; transition:all .2s;
