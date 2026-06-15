@@ -4,7 +4,7 @@
    ============================================= */
 
 const SUPABASE_URL  = 'https://uahvowgqfewxnihanqgv.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhid2xwbGRjbndqZnBjd2xtdG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTU4MzMsImV4cCI6MjA5NzAzMTgzM30.hddiaeyySyABNZj6sdVbVGfycLVE1KDszc6vn4DuqXs';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhaHZvd2dxZmV3eG5paGFucWd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0OTExMTgsImV4cCI6MjA5NzA2NzExOH0.enThVsgRPLud1X5EOYXjTdvoeN0-t99NwxmmuD9KU0k';
 
 // ── Supabase 클라이언트 초기화 ──
 const { createClient } = supabase;
