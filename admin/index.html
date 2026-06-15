@@ -77,6 +77,7 @@
         <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px">현재 프로필 사진</div>
         <img id="current-avatar" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--pink-light);display:none">
         <span id="no-avatar" style="font-size:12px;color:var(--text-soft)">없음</span>
+        <button class="btn btn-outline" id="delete-avatar-btn" onclick="deleteAvatar()" style="display:none;margin-left:10px;padding:6px 14px;font-size:12px">🗑 사진 삭제</button>
       </div>
       <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-primary" onclick="saveLocalProfile()">저장 ♥</button></div>
     </div>
@@ -279,7 +280,27 @@
   function showCurrentAvatar(url) {
     const cur = document.getElementById('current-avatar');
     const none = document.getElementById('no-avatar');
-    if (url) { cur.src = url; cur.style.display = 'block'; none.style.display = 'none'; }
+    const delBtn = document.getElementById('delete-avatar-btn');
+    if (url) {
+      cur.src = url; cur.style.display = 'inline-block'; none.style.display = 'none';
+      if (delBtn) delBtn.style.display = 'inline-flex';
+    } else {
+      cur.style.display = 'none'; none.style.display = 'inline';
+      if (delBtn) delBtn.style.display = 'none';
+    }
+  }
+  async function deleteAvatar() {
+    if (!confirm('프로필 사진을 삭제할까요?\n(삭제하면 SOOP 아이디 프사가 적용돼요)')) return;
+    let saved = {};
+    try {
+      const { data: rows } = await db.from('profile').select('data').eq('id', 1);
+      if (rows && rows.length > 0 && rows[0].data) saved = rows[0].data;
+    } catch(e) {}
+    saved['avatar'] = '';
+    const { error } = await db.from('profile').upsert({ id: 1, data: saved });
+    if (error) { showToast('❌ 삭제 실패: ' + error.message); return; }
+    showCurrentAvatar('');
+    showToast('🗑 사진 삭제됨! 이제 SOOP 아이디 프사가 떠요');
   }
   function previewUpload() {
     const file = document.getElementById('avatar-file').files[0];
