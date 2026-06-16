@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🔐 리데레 Admin</title>
+  <link rel="icon" type="image/jpeg" href="https://profile.img.sooplive.co.kr/LOGO/kr/krad8243/krad8243.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
   <style>
@@ -50,6 +51,7 @@
       <button class="tab-btn" onclick="switchTab('work',this)">⚡ 업보</button>
       <button class="tab-btn" onclick="switchTab('diary',this)">📝 일기</button>
       <button class="tab-btn" onclick="switchTab('song',this)">🎵 노래</button>
+      <button class="tab-btn" onclick="switchTab('shorts',this)">🎬 쇼츠</button>
       <button class="tab-btn" onclick="switchTab('inquiry',this)">✉️ 문의</button>
     </div>
   </div>
@@ -357,6 +359,22 @@
   </div>
 
   <!-- 문의 탭 -->
+  <div class="tab-panel" id="tab-shorts">
+    <div class="card">
+      <div class="card-title">🎬 쇼츠 추가</div>
+      <div class="form-grid">
+        <div class="form-field full"><label class="input-label">유튜브 쇼츠 링크 *</label><input class="input" id="short-url" placeholder="https://youtube.com/shorts/..."></div>
+        <div class="form-field full"><label class="input-label">제목 (선택)</label><input class="input" id="short-title" placeholder="쇼츠 제목"></div>
+        <div class="form-field full" style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="addShort()">+ 추가</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">쇼츠 목록</div>
+      <div class="table-wrap"><table><thead><tr><th>제목</th><th>링크</th><th>삭제</th></tr></thead>
+      <tbody id="short-list"><tr><td colspan="3"><div class="spinner"></div></td></tr></tbody></table></div>
+    </div>
+  </div>
+
   <div class="tab-panel" id="tab-inquiry">
     <div class="card">
       <div class="card-title">📬 문의함</div>
@@ -371,7 +389,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../supabase.js"></script>
 <script>
-  const ADMIN_PASSWORD = 'asdf0110!!';
+  const ADMIN_PASSWORD = '1234';
 
   const profileKeys = [
     'head-sub','quote','msg','soop-id',
@@ -386,7 +404,7 @@
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('adminBody').style.display = 'flex';
       loadProfileFields();
-      loadNotice(); loadSchedule(); loadWork(); loadDiary(); loadSong(); loadInquiry(); loadOriginalSongs();
+      loadNotice(); loadSchedule(); loadWork(); loadDiary(); loadSong(); loadShort(); loadInquiry(); loadOriginalSongs();
     } else {
       document.getElementById('loginErr').textContent = '비밀번호가 틀렸어요 >﹏<';
     }
@@ -733,6 +751,25 @@
     diff = Math.min(5, Math.max(1, diff));
     const ok = await insertRow('songs', { title, artist: document.getElementById('song-artist').value.trim(), genre: document.getElementById('song-genre').value, difficulty: diff });
     if (ok) { showToast('✅ 추가!'); document.getElementById('song-title').value=''; document.getElementById('song-artist').value=''; loadSong(); }
+    else showToast('❌ 실패');
+  }
+
+  // ── 쇼츠 ──
+  let shortData = [];
+  async function loadShort() {
+    shortData = await fetchAll('shorts', { order: 'created_at', asc: false });
+    renderShorts();
+  }
+  function renderShorts() {
+    const t = document.getElementById('short-list');
+    if (!shortData.length) { t.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
+    t.innerHTML = shortData.map(s => `<tr><td>${s.title||'-'}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#888">${s.url}</td><td><button class="delete-btn" onclick="del('shorts',${s.id},loadShort)">🗑</button></td></tr>`).join('');
+  }
+  async function addShort() {
+    const url = document.getElementById('short-url').value.trim();
+    if (!url) { showToast('❗ 링크 필수!'); return; }
+    const ok = await insertRow('shorts', { url, title: document.getElementById('short-title').value.trim() });
+    if (ok) { showToast('✅ 추가!'); document.getElementById('short-url').value=''; document.getElementById('short-title').value=''; loadShort(); }
     else showToast('❌ 실패');
   }
 
