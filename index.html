@@ -20,6 +20,36 @@
       --pen: 'Nanum Pen Script', cursive;
       --katuri: 'AndongKaturi', 'Nanum Pen Script', cursive;
     }
+    /* 다크모드 (사진 색감: 어두운 배경 + 핑크 손글씨) */
+    body.dark {
+      --pink: #ff9db8;
+      --pink-dark: #ffa6c1;
+      --pink-light: #5a3a47;
+      --pink-bg: #1a1216;
+      --pink-card: #251a20;
+    }
+    body.dark { color: #f3e3ea; }
+    body.dark .card,
+    body.dark .inquiry-btn { background: var(--pink-card); color: #f3e3ea; }
+    body.dark footer { color: #f3e3ea !important; }
+    body { transition: background .2s ease, color .2s ease; }
+    /* 다크모드 세로 토글 (노래책 오른쪽) */
+    .theme-switch {
+      flex-shrink: 0; margin-left: 7px;
+      position: relative;
+      width: 22px; height: 33px; border-radius: 999px;
+      border: 1.5px solid var(--pink-light); background: #ffe3ec;
+      cursor: pointer; padding: 0; transition: background .2s ease;
+    }
+    .theme-switch .knob {
+      position: absolute; left: 1.5px; top: 1.5px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 9px; transition: top .2s ease, background .2s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    body.dark .theme-switch { background: #3a2630; }
+    body.dark .theme-switch .knob { top: 14px; background: #251a20; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: var(--pink-bg);
@@ -267,6 +297,7 @@
     <a href="work/">업보</a>
     <a href="diary/">일기</a>
   <a href="song/">노래책</a>
+    <button class="theme-switch" id="themeSwitch" type="button" aria-label="다크모드 전환"><span class="knob" id="themeKnob">🌙</span></button>
   </div>
 </nav>
 
@@ -344,7 +375,7 @@
 
   <!-- 방송 요일 -->
   <div class="card">
-    <div class="card-head">📅 이번주 방송 요일</div>
+    <div class="card-head">📅 방송 요일</div>
     <div class="day-row">
       <span class="day" id="day-0">일</span>
       <span class="day on" id="day-1">월</span>
@@ -580,6 +611,20 @@
     window.addEventListener('load', initIframeResize);
     setTimeout(initIframeResize, 800);
   }
+</script>
+<script>
+(function(){
+  if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
+  var sw = document.getElementById('themeSwitch');
+  var knob = document.getElementById('themeKnob');
+  function refresh(){ if(knob) knob.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙'; }
+  if (sw) sw.addEventListener('click', function(){
+    document.body.classList.toggle('dark');
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    refresh();
+  });
+  refresh();
+})();
 </script>
 </body>
 </html>
