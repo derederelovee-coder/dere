@@ -47,7 +47,7 @@
     .up-badge { padding:5px 14px; border-radius:999px; font-size:12px; font-weight:700; flex-shrink:0; }
 
     /* 모달 */
-    .ov { position:absolute; left:0; right:0; background:rgba(40,20,30,0.35); display:none; align-items:center; justify-content:center; z-index:500; padding:16px; }
+    .ov { position:absolute; left:0; right:0; background:rgba(40,20,30,0.35); display:none; align-items:flex-start; justify-content:center; z-index:500; padding:16px; }
     .ov.show { display:flex; }
     .modal { background:#fff; border-radius:22px; width:100%; max-width:380px; padding:22px; box-shadow:0 20px 60px rgba(255,100,150,0.3); animation:pop .2s ease; }
     @keyframes pop { from{transform:scale(.95);opacity:0} to{transform:scale(1);opacity:1} }
@@ -200,9 +200,12 @@
     html += `<button class="m-close" onclick="closeModal()">닫기</button>`;
     document.getElementById('modal-body').innerHTML = html;
     const ov = document.getElementById('ov');
-    const top = (window.scrollY || document.documentElement.scrollTop || 0);
-    ov.style.top = top + 'px';
-    ov.style.height = (window.innerHeight || 600) + 'px';
+    const e = window.event;
+    let y = 200;
+    if (e) { y = (e.pageY != null ? e.pageY : (e.clientY||0)); }
+    ov.style.top = Math.max(10, y - 80) + 'px';
+    ov.style.height = 'auto';
+    ov.style.minHeight = '0';
     ov.classList.add('show');
   }
   function closeModal(){ document.getElementById('ov').classList.remove('show'); }
