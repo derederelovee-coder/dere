@@ -51,6 +51,17 @@
     body.dark .cmt-item { background: #2a2024; }
     body.dark .cmt-nick,
     body.dark .cmt-msg { background: var(--pink-card); color: var(--text); }
+    @media (max-width: 560px) {
+      .card { padding: 14px 12px; }
+      .diary-item { padding: 13px 14px; }
+      .diary-item.open .diary-content { margin-top: 10px; padding-top: 10px; }
+      .post-img { margin-bottom: 8px; }
+      .cmt-wrap { margin-top: 10px; padding-top: 10px; }
+      .cmt-form { gap: 5px; }
+      .cmt-nick { width: 100%; }
+      .cmt-msg { min-width: 0; width: 100%; }
+      .cmt-send { width: 100%; }
+    }
   </style>
 </head>
 <body>
