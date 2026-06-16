@@ -99,6 +99,7 @@
 
   async function init() {
     allData = await fetchAll('diary', { order: 'diary_date', asc: false });
+    allData.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || new Date(b.diary_date)-new Date(a.diary_date));
     renderPage(1);
   }
   function renderPage(page) {
