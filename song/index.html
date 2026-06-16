@@ -23,14 +23,25 @@
     tbody tr:hover td { background:#fff9fb; }
     .s-num { color:var(--text-soft); font-size:13px; width:36px; }
     .s-title { font-weight:600; }
-    .s-genre { font-size:11px; background:var(--pink-light); color:var(--pink-dark); padding:3px 10px; border-radius:999px; }
+    .s-genre { font-size:11px; background:var(--pink-light); color:var(--pink-dark); padding:3px 10px; border-radius:999px; white-space:nowrap; display:inline-block; }
     .s-diff { display:inline-flex; gap:3px; }
     .dot { width:8px; height:8px; border-radius:50%; background:var(--pink-light); }
     .dot.on { background:var(--pink); }
     .pagination { display:flex; justify-content:center; gap:6px; margin-top:16px; }
     .pg { width:34px; height:34px; border-radius:50%; border:1.5px solid var(--pink-light); background:#fff; color:var(--text-mid); font-size:13px; font-weight:600; cursor:pointer; }
     .pg.active { background:var(--pink); color:#fff; border-color:var(--pink); }
-    @media (max-width:560px){ .hide-m { display:none; } }
+    body.dark thead th { background:#2a2024; }
+    body.dark tbody tr:hover td { background:#2a2024; }
+    body.dark .search-box { background:var(--pink-card); color:var(--text); }
+    body.dark .pg { background:var(--pink-card); color:var(--text); }
+    @media (max-width:560px){
+      .hide-m { display:none; }
+      thead th { padding:9px 8px; font-size:11px; }
+      tbody td { padding:11px 6px; font-size:13px; }
+      .s-num { width:24px; font-size:12px; }
+      .s-genre { font-size:10px; padding:2px 8px; }
+      .dot { width:7px; height:7px; }
+    }
   </style>
 </head>
 <body>
