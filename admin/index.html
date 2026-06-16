@@ -21,6 +21,9 @@
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .form-grid .full { grid-column: 1 / -1; }
     .delete-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 16px; padding: 4px 8px; border-radius: 6px; transition: color 0.2s; }
+    .drag-row { cursor: move; }
+    .drag-handle { color: var(--pink); font-size: 15px; cursor: grab; margin-right: 4px; user-select: none; }
+    .drag-row:hover { background: #fff5f7; }
     .delete-btn:hover { color: #e05; }
     .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--pink-light); display: none; }
   </style>
@@ -500,11 +503,20 @@
   }
 
   // ── 공지 ──
+  let noticeData = [];
   async function loadNotice() {
-    const data = await fetchAll('notice', { order: 'created_at', asc: false });
+    noticeData = await fetchAll('notice', { order: 'sort_order', asc: true });
+    // sort_order 같으면 최신순 보조정렬
+    noticeData.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || new Date(b.created_at)-new Date(a.created_at));
     const t = document.getElementById('noti-list');
-    if (!data.length) { t.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
-    t.innerHTML = data.map(n => `<tr><td>${n.title}</td><td>${n.pinned?'📌':'-'}</td><td>${new Date(n.created_at).toLocaleDateString()}</td><td><button class="delete-btn" onclick="del('notice',${n.id},loadNotice)">🗑</button></td></tr>`).join('');
+    if (!noticeData.length) { t.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
+    t.innerHTML = noticeData.map(n => `<tr draggable="true" data-id="${n.id}" class="drag-row">
+      <td><span class="drag-handle">≡</span> ${n.title}</td>
+      <td>${n.pinned?'📌':'-'}</td>
+      <td>${new Date(n.created_at).toLocaleDateString()}</td>
+      <td><button class="delete-btn" onclick="del('notice',${n.id},loadNotice)">🗑</button></td>
+    </tr>`).join('');
+    enableDrag(t, 'notice', () => noticeData);
   }
   async function addNotice() {
     const title = document.getElementById('noti-title').value.trim();
@@ -751,6 +763,34 @@
     const ok = await insertRow('songs', { title, artist: document.getElementById('song-artist').value.trim(), genre: document.getElementById('song-genre').value, difficulty: diff });
     if (ok) { showToast('✅ 추가!'); document.getElementById('song-title').value=''; document.getElementById('song-artist').value=''; loadSong(); }
     else showToast('❌ 실패');
+  }
+
+  // ── 드래그로 순서 바꾸기 (공통) ──
+  function enableDrag(tbody, table, getData){
+    let dragEl = null;
+    tbody.querySelectorAll('.drag-row').forEach(row => {
+      row.addEventListener('dragstart', e => { dragEl = row; row.style.opacity='0.4'; });
+      row.addEventListener('dragend', e => { row.style.opacity='1'; });
+      row.addEventListener('dragover', e => {
+        e.preventDefault();
+        const cur = tbody.querySelector('.drag-row[style*="0.4"]') || dragEl;
+        if (!cur || cur===row) return;
+        const rect = row.getBoundingClientRect();
+        const after = (e.clientY - rect.top) > rect.height/2;
+        if (after) row.after(cur); else row.before(cur);
+      });
+    });
+    tbody.addEventListener('drop', async e => {
+      e.preventDefault();
+      const ids = [...tbody.querySelectorAll('.drag-row')].map(r => parseInt(r.dataset.id));
+      for (let i=0;i<ids.length;i++){ await updateRow(table, ids[i], { sort_order: i }); }
+      showToast('✅ 순서 저장됨');
+      // 목록 새로고침 (드래그 재활성화)
+      if (table==='notice') loadNotice();
+      else if (table==='diary') loadDiary();
+      else if (table==='songs') loadSong();
+      else if (table==='shorts') loadShort();
+    }, { once:true });
   }
 
   // ── 쇼츠 ──
