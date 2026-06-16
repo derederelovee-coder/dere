@@ -20,18 +20,24 @@
       --pen: 'Nanum Pen Script', cursive;
       --katuri: 'AndongKaturi', 'Nanum Pen Script', cursive;
     }
-    /* 다크모드 (사진 색감: 어두운 배경 + 핑크 손글씨) */
+    /* 다크모드 (사진 색감: 진한 검정 배경 + 핑크 손글씨) */
     body.dark {
       --pink: #ff9db8;
       --pink-dark: #ffa6c1;
-      --pink-light: #5a3a47;
-      --pink-bg: #1a1216;
-      --pink-card: #251a20;
+      --pink-light: #4a3540;
+      --pink-bg: #121213;
+      --pink-card: #1f1a1d;
     }
     body.dark { color: #f3e3ea; }
+    body.dark::before { display: none; }
     body.dark .card,
     body.dark .inquiry-btn { background: var(--pink-card); color: #f3e3ea; }
     body.dark footer { color: #f3e3ea !important; }
+    body.dark .nav { background: rgba(18,18,19,0.92); }
+    body.dark .msg-box,
+    body.dark .ovod-card,
+    body.dark .iq-modal { background: var(--pink-card); color: #f3e3ea; }
+    body.dark .msg-box { border-color: var(--pink-light); }
     body { transition: background .2s ease, color .2s ease; }
     /* 다크모드 세로 토글 (노래책 오른쪽) */
     .theme-switch {
@@ -48,8 +54,8 @@
       font-size: 9px; transition: top .2s ease, background .2s ease;
       box-shadow: 0 1px 4px rgba(0,0,0,.2);
     }
-    body.dark .theme-switch { background: #3a2630; }
-    body.dark .theme-switch .knob { top: 14px; background: #251a20; }
+    body.dark .theme-switch { background: #2e2630; }
+    body.dark .theme-switch .knob { top: 14px; background: #1f1a1d; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: var(--pink-bg);
