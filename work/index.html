@@ -29,7 +29,7 @@
     .viewer-id { font-size:11px; color:var(--text-soft); margin:2px 0 8px; }
     .viewer-total { display:inline-block; background:var(--pink); color:#fff; border-radius:999px; padding:3px 14px; font-size:12px; font-weight:700; }
 
-    .ov { position:absolute; left:0; right:0; background:rgba(40,20,30,0.35); display:none; align-items:center; justify-content:center; z-index:500; padding:16px; }
+    .ov { position:absolute; left:0; right:0; background:rgba(40,20,30,0.35); display:none; align-items:flex-start; justify-content:center; z-index:500; padding:16px; }
     .ov.show { display:flex; }
     .modal {
       background:#fff; border-radius:22px; width:100%; max-width:420px;
@@ -155,10 +155,13 @@
       </div>`).join('');
     document.getElementById('modal-body').innerHTML = rows || '<div class="modal-empty">아직 업보가 없어요 ♡</div>';
     const ov = document.getElementById('ov');
-    // SOOP iframe 대응: 현재 보이는 위치에 모달 띄우기
-    const top = (window.scrollY || document.documentElement.scrollTop || 0);
-    ov.style.top = top + 'px';
-    ov.style.height = (window.innerHeight || 600) + 'px';
+    // SOOP iframe(고정높이·스크롤off) 대응: 클릭 지점 기준으로 모달 띄움
+    const e = window.event;
+    let y = 200;
+    if (e) { y = (e.pageY != null ? e.pageY : (e.clientY||0)); }
+    ov.style.top = Math.max(10, y - 80) + 'px';
+    ov.style.height = 'auto';
+    ov.style.minHeight = '0';
     ov.classList.add('show');
   }
   function closeModal(){ document.getElementById('ov').classList.remove('show'); }
