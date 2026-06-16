@@ -87,6 +87,7 @@
 
   async function init() {
     songs = await fetchAll('songs', { order: 'id', asc: true });
+    songs.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || (a.id-b.id));
     renderGenres(); render();
     enableIframeAutoHeight();
   }
