@@ -21,9 +21,10 @@
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .form-grid .full { grid-column: 1 / -1; }
     .delete-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 16px; padding: 4px 8px; border-radius: 6px; transition: color 0.2s; }
-    .drag-row { cursor: move; }
-    .drag-handle { color: var(--pink); font-size: 15px; cursor: grab; margin-right: 4px; user-select: none; }
-    .drag-row:hover { background: #fff5f7; }
+    .ord-btns { display: inline-flex; flex-direction: column; gap: 1px; vertical-align: middle; margin-right: 6px; }
+    .ord-btn { background: var(--pink-light); border: none; color: var(--pink-dark); font-size: 8px; line-height: 1; padding: 2px 4px; border-radius: 4px; cursor: pointer; transition: background 0.15s; }
+    .ord-btn:hover:not(:disabled) { background: var(--pink); color: #fff; }
+    .ord-btn:disabled { opacity: 0.3; cursor: default; }
     .delete-btn:hover { color: #e05; }
     .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--pink-light); display: none; }
   </style>
@@ -506,17 +507,15 @@
   let noticeData = [];
   async function loadNotice() {
     noticeData = await fetchAll('notice', { order: 'created_at', asc: false });
-    // 정렬은 JS에서 (sort_order 컬럼 없어도 안전)
     noticeData.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || new Date(b.created_at)-new Date(a.created_at));
     const t = document.getElementById('noti-list');
     if (!noticeData.length) { t.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
-    t.innerHTML = noticeData.map(n => `<tr draggable="true" data-id="${n.id}" class="drag-row">
-      <td><span class="drag-handle">≡</span> ${n.title}</td>
+    t.innerHTML = noticeData.map((n, i) => `<tr>
+      <td><span class="ord-btns"><button class="ord-btn" onclick="moveItem('notice',${i},-1)" ${i===0?'disabled':''}>▲</button><button class="ord-btn" onclick="moveItem('notice',${i},1)" ${i===noticeData.length-1?'disabled':''}>▼</button></span> ${n.title}</td>
       <td>${n.pinned?'📌':'-'}</td>
       <td>${new Date(n.created_at).toLocaleDateString()}</td>
       <td><button class="delete-btn" onclick="del('notice',${n.id},loadNotice)">🗑</button></td>
     </tr>`).join('');
-    enableDrag(t, 'notice', () => noticeData);
   }
   async function addNotice() {
     const title = document.getElementById('noti-title').value.trim();
@@ -766,31 +765,29 @@
   }
 
   // ── 드래그로 순서 바꾸기 (공통) ──
-  function enableDrag(tbody, table, getData){
-    let dragEl = null;
-    tbody.querySelectorAll('.drag-row').forEach(row => {
-      row.addEventListener('dragstart', e => { dragEl = row; row.style.opacity='0.4'; });
-      row.addEventListener('dragend', e => { row.style.opacity='1'; });
-      row.addEventListener('dragover', e => {
-        e.preventDefault();
-        const cur = tbody.querySelector('.drag-row[style*="0.4"]') || dragEl;
-        if (!cur || cur===row) return;
-        const rect = row.getBoundingClientRect();
-        const after = (e.clientY - rect.top) > rect.height/2;
-        if (after) row.after(cur); else row.before(cur);
-      });
-    });
-    tbody.addEventListener('drop', async e => {
-      e.preventDefault();
-      const ids = [...tbody.querySelectorAll('.drag-row')].map(r => parseInt(r.dataset.id));
-      let okAll = true;
-      for (let i=0;i<ids.length;i++){ const ok = await updateRow(table, ids[i], { sort_order: i }); if(!ok) okAll=false; }
-      showToast(okAll ? '✅ 순서 저장됨' : '❌ 저장 실패 (sort_order 컬럼 확인)');
-      if (table==='notice') loadNotice();
-      else if (table==='diary') loadDiary();
-      else if (table==='songs') loadSong();
-      else if (table==='shorts') loadShort();
-    }, { once:true });
+  // ── 순서 바꾸기 (▲▼ 버튼) ──
+  function getDataArr(table){
+    if (table==='notice') return noticeData;
+    if (table==='diary') return diaryData;
+    if (table==='songs') return songData;
+    if (table==='shorts') return shortData;
+    return [];
+  }
+  async function moveItem(table, idx, dir){
+    const arr = getDataArr(table);
+    const ni = idx + dir;
+    if (ni < 0 || ni >= arr.length) return;
+    // 배열에서 위치 교환
+    const tmp = arr[idx]; arr[idx] = arr[ni]; arr[ni] = tmp;
+    // 전체 순서 다시 저장
+    let okAll = true;
+    for (let i=0;i<arr.length;i++){ const ok = await updateRow(table, arr[i].id, { sort_order: i }); if(!ok) okAll=false; }
+    showToast(okAll ? '✅ 순서 변경됨' : '❌ 저장 실패 (sort_order 컬럼 확인)');
+    // 목록 다시 그리기
+    if (table==='notice') loadNotice();
+    else if (table==='diary') loadDiary();
+    else if (table==='songs') loadSong();
+    else if (table==='shorts') loadShort();
   }
 
   // ── 쇼츠 ──
