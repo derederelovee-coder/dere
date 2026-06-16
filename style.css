@@ -28,6 +28,49 @@
   --transition:  0.2s ease;
 }
 
+/* ── 다크모드 색감 (사진 기준: 진한 검정 배경 + 핑크 손글씨) ── */
+body.dark {
+  --pink:        #ff9db8;
+  --pink-dark:   #ffa6c1;
+  --pink-deep:   #ffb8cf;
+  --pink-light:  #4a3540;
+  --pink-bg:     #121213;
+  --pink-card:   #1f1a1d;
+  --text:        #f3e3ea;
+  --text-soft:   #b08a99;
+  --text-mid:    #c9a7b5;
+  --white:       #1f1a1d;
+  --shadow:      0 4px 24px rgba(0, 0, 0, 0.5);
+  --shadow-hover:0 8px 32px rgba(0, 0, 0, 0.6);
+}
+body.dark::before { display: none; }
+body { transition: background var(--transition), color var(--transition); }
+
+/* ── 다크모드 세로 토글 (노래책 오른쪽) ── */
+.theme-switch {
+  flex-shrink: 0; margin-left: 7px;
+  position: relative;
+  width: 22px; height: 33px; border-radius: 999px;
+  border: 1.5px solid var(--pink-light); background: #ffe3ec;
+  cursor: pointer; padding: 0; transition: background var(--transition);
+}
+.theme-switch .knob {
+  position: absolute; left: 1.5px; top: 1.5px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 9px; transition: top var(--transition), background var(--transition);
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+body.dark .theme-switch { background: #2e2630; }
+body.dark .theme-switch .knob { top: 14px; background: #1f1a1d; }
+
+/* 다크모드 고정색 요소 보정 */
+body.dark .nav { background: rgba(18,18,19,0.92); }
+body.dark .input { background: var(--pink-card); color: var(--text); }
+body.dark .page-btn { background: var(--pink-card); color: var(--text); }
+body.dark .badge-white { background: var(--pink-card); }
+body.dark tr:hover td { background: #2e2028; }
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
