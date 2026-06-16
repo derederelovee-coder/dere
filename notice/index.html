@@ -45,6 +45,7 @@
   <a href="../work/">업보</a>
   <a href="../diary/">일기</a>
   <a href="../song/">노래책</a>
+  <button class="theme-switch" id="themeSwitch" type="button" aria-label="다크모드 전환"><span class="knob" id="themeKnob">🌙</span></button>
 </div></nav>
 
 <div class="container">
@@ -58,7 +59,7 @@
     </div>
   </div>
 </div>
-<footer style="margin-top:20px; color:#000; font-size:14px; line-height:1.7; text-align:center;">Copyright © 2026 RIDERE Official. All rights reserved.<br>비지니스 문의 - derederelovee@gmail.com</footer>
+<footer style="margin-top:-48px; color:#000; font-size:14px; line-height:1.7; text-align:center;">Copyright © 2026 RIDERE Official. All rights reserved.<br>비지니스 문의 - derederelovee@gmail.com</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../supabase.js"></script>
@@ -95,6 +96,20 @@
     }).join('');
   }
   init();
+</script>
+<script>
+(function(){
+  if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
+  var sw = document.getElementById('themeSwitch');
+  var knob = document.getElementById('themeKnob');
+  function refresh(){ if(knob) knob.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙'; }
+  if (sw) sw.addEventListener('click', function(){
+    document.body.classList.toggle('dark');
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    refresh();
+  });
+  refresh();
+})();
 </script>
 </body>
 </html>
