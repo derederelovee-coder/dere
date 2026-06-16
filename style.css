@@ -82,6 +82,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
+  position: relative;
 }
 
 /* ── 배경 하트 장식 ── */
