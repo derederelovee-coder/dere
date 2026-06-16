@@ -78,6 +78,7 @@
   async function load(){
     let rows = [];
     try { rows = await fetchAll('shorts', { order: 'created_at', asc: false }); } catch(e){ rows = []; }
+    rows.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || new Date(b.created_at)-new Date(a.created_at));
     const body = document.getElementById('shorts-body');
     const items = (rows||[]).map(r => ({ id:ytId(r.url), title:r.title||'' })).filter(r=>r.id);
     if(!items.length){
