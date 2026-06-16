@@ -391,7 +391,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../supabase.js"></script>
 <script>
-  const ADMIN_PASSWORD = 'asdf0110!!';
+  const ADMIN_PASSWORD = '1234';
 
   const profileKeys = [
     'head-sub','quote','msg','soop-id',
@@ -505,8 +505,8 @@
   // ── 공지 ──
   let noticeData = [];
   async function loadNotice() {
-    noticeData = await fetchAll('notice', { order: 'sort_order', asc: true });
-    // sort_order 같으면 최신순 보조정렬
+    noticeData = await fetchAll('notice', { order: 'created_at', asc: false });
+    // 정렬은 JS에서 (sort_order 컬럼 없어도 안전)
     noticeData.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || new Date(b.created_at)-new Date(a.created_at));
     const t = document.getElementById('noti-list');
     if (!noticeData.length) { t.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
@@ -783,9 +783,9 @@
     tbody.addEventListener('drop', async e => {
       e.preventDefault();
       const ids = [...tbody.querySelectorAll('.drag-row')].map(r => parseInt(r.dataset.id));
-      for (let i=0;i<ids.length;i++){ await updateRow(table, ids[i], { sort_order: i }); }
-      showToast('✅ 순서 저장됨');
-      // 목록 새로고침 (드래그 재활성화)
+      let okAll = true;
+      for (let i=0;i<ids.length;i++){ const ok = await updateRow(table, ids[i], { sort_order: i }); if(!ok) okAll=false; }
+      showToast(okAll ? '✅ 순서 저장됨' : '❌ 저장 실패 (sort_order 컬럼 확인)');
       if (table==='notice') loadNotice();
       else if (table==='diary') loadDiary();
       else if (table==='songs') loadSong();
