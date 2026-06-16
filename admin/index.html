@@ -710,11 +710,21 @@
   }
 
   // ── 일기 ──
+  let diaryData = [];
   async function loadDiary() {
-    const data = await fetchAll('diary', { order: 'diary_date', asc: false });
+    diaryData = await fetchAll('diary', { order: 'diary_date', asc: false });
+    diaryData.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || new Date(b.diary_date)-new Date(a.diary_date));
+    renderDiaryRows();
+  }
+  function renderDiaryRows() {
     const t = document.getElementById('diary-list');
-    if (!data.length) { t.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
-    t.innerHTML = data.map(d => `<tr><td>${d.diary_date||'-'}</td><td>${d.mood}</td><td>${d.title}</td><td><button class="delete-btn" onclick="del('diary',${d.id},loadDiary)">🗑</button></td></tr>`).join('');
+    if (!diaryData.length) { t.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
+    t.innerHTML = diaryData.map((d, i) => `<tr>
+      <td><span class="ord-btns"><button class="ord-btn" onclick="moveItem('diary',${i},-1)" ${i===0?'disabled':''}>▲</button><button class="ord-btn" onclick="moveItem('diary',${i},1)" ${i===diaryData.length-1?'disabled':''}>▼</button></span> ${d.diary_date||'-'}</td>
+      <td>${d.mood}</td>
+      <td>${d.title}</td>
+      <td><button class="delete-btn" onclick="del('diary',${d.id},loadDiary)">🗑</button></td>
+    </tr>`).join('');
   }
   async function addDiary() {
     const title = document.getElementById('diary-title').value.trim();
@@ -745,6 +755,7 @@
   let songData = [];
   async function loadSong() {
     songData = await fetchAll('songs', { order: 'id', asc: true });
+    songData.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || (a.id-b.id));
     renderSongs();
   }
   function renderSongs() {
@@ -752,9 +763,10 @@
     const list = songData.filter(s => !q || (s.title||'').toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q));
     const t = document.getElementById('song-list');
     if (!songData.length) { t.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
-    t.innerHTML = list.map(s => {
+    t.innerHTML = list.map((s, i) => {
       const d = parseInt(s.difficulty)||0; let stars=''; for(let k=1;k<=d;k++) stars+='⭐';
-      return `<tr><td>${s.title}</td><td>${s.artist||'-'}</td><td><span class="badge badge-pink">${s.genre||'기타'}</span></td><td>${stars||'-'}</td><td><button class="delete-btn" onclick="del('songs',${s.id},loadSong)">🗑</button></td></tr>`;
+      const ord = q ? '' : `<span class="ord-btns"><button class="ord-btn" onclick="moveItem('songs',${i},-1)" ${i===0?'disabled':''}>▲</button><button class="ord-btn" onclick="moveItem('songs',${i},1)" ${i===list.length-1?'disabled':''}>▼</button></span> `;
+      return `<tr><td>${ord}${s.title}</td><td>${s.artist||'-'}</td><td><span class="badge badge-pink">${s.genre||'기타'}</span></td><td>${stars||'-'}</td><td><button class="delete-btn" onclick="del('songs',${s.id},loadSong)">🗑</button></td></tr>`;
     }).join('');
   }
   async function addSong() {
@@ -779,7 +791,7 @@
   function rerenderList(table){
     // fetchAll 없이 메모리 배열로 다시 그리기
     if (table==='notice') renderNoticeRows();
-    else if (table==='diary' && typeof renderDiaryRows==='function') renderDiaryRows();
+    else if (table==='diary') renderDiaryRows();
     else if (table==='songs') renderSongs();
     else if (table==='shorts') renderShorts();
   }
@@ -800,12 +812,16 @@
   let shortData = [];
   async function loadShort() {
     shortData = await fetchAll('shorts', { order: 'created_at', asc: false });
+    shortData.sort((a,b)=> (a.sort_order||0)-(b.sort_order||0) || new Date(b.created_at)-new Date(a.created_at));
     renderShorts();
   }
   function renderShorts() {
     const t = document.getElementById('short-list');
     if (!shortData.length) { t.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
-    t.innerHTML = shortData.map(s => `<tr><td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#888">${s.url}</td><td><button class="delete-btn" onclick="del('shorts',${s.id},loadShort)">🗑</button></td></tr>`).join('');
+    t.innerHTML = shortData.map((s, i) => `<tr>
+      <td><span class="ord-btns"><button class="ord-btn" onclick="moveItem('shorts',${i},-1)" ${i===0?'disabled':''}>▲</button><button class="ord-btn" onclick="moveItem('shorts',${i},1)" ${i===shortData.length-1?'disabled':''}>▼</button></span> <span style="display:inline-block;vertical-align:middle;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#888">${s.url}</span></td>
+      <td><button class="delete-btn" onclick="del('shorts',${s.id},loadShort)">🗑</button></td>
+    </tr>`).join('');
   }
   async function addShort() {
     const url = document.getElementById('short-url').value.trim();
