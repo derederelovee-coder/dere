@@ -24,6 +24,12 @@
     .empty { text-align:center; padding:50px 0; color:var(--text-soft); }
     .empty-icon { font-size:40px; margin-bottom:10px; }
     body.dark .short-card { border-color:#3a2f35; }
+    /* 쇼츠 재생 모달 (크게 보기) */
+    .short-ov { position:absolute; left:0; right:0; background:rgba(0,0,0,.75); display:none; align-items:flex-start; justify-content:center; z-index:600; padding:16px; }
+    .short-ov.show { display:flex; }
+    .short-modal { position:relative; width:340px; max-width:92vw; aspect-ratio:9/16; background:#000; border-radius:16px; overflow:hidden; box-shadow:0 12px 48px rgba(0,0,0,.5); }
+    .short-modal .short-player, .short-modal iframe, .short-modal #yt-target { width:100%; height:100%; border:0; display:block; }
+    .short-close { position:absolute; top:-2px; right:8px; color:#fff; font-size:34px; line-height:1; cursor:pointer; z-index:2; text-shadow:0 1px 4px rgba(0,0,0,.6); }
   </style>
 </head>
 <body>
@@ -47,6 +53,13 @@
   </div>
 </div>
 <footer style="margin-top:-48px; color:#000; font-size:14px; line-height:1.7; text-align:center;">Copyright © 2026 RIDERE Official. All rights reserved.<br>비지니스 문의 - derederelovee@gmail.com</footer>
+
+<div class="short-ov" id="short-ov" onclick="if(event.target===this)closeShort()">
+  <div class="short-modal">
+    <span class="short-close" onclick="closeShort()">×</span>
+    <div class="short-player" id="short-player"></div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../supabase.js"></script>
@@ -72,10 +85,9 @@
       return;
     }
     body.innerHTML = '<div class="shorts-grid">' + items.map(s => `
-      <div class="short-card" onclick="playShort(this,'${s.id}')">
-        <img src="https://i.ytimg.com/vi/${s.id}/hqdefault.jpg" alt="${esc(s.title)}" loading="lazy">
+      <div class="short-card" onclick="playShort('${s.id}')">
+        <img src="https://i.ytimg.com/vi/${s.id}/hqdefault.jpg" alt="" loading="lazy">
         <div class="short-play"><span>▶</span></div>
-        ${s.title ? `<div class="short-title">${esc(s.title)}</div>` : ''}
       </div>`).join('') + '</div>';
   }
 
@@ -93,22 +105,31 @@
     ytQueue.length = 0;
   };
 
-  function playShort(card, id){
-    // iframe 자리 만들기
-    const holder = document.createElement('div');
-    card.innerHTML = '';
-    card.appendChild(holder);
+  let ytPlayer = null;
+  function playShort(id){
+    const ov = document.getElementById('short-ov');
+    const holder = document.getElementById('short-player');
+    holder.innerHTML = '<div id="yt-target"></div>';
+    // SOOP iframe 대응: 클릭 위치 기준으로 모달 띄우기
+    const e = window.event;
+    let y = (e && (e.pageY!=null ? e.pageY : e.clientY)) || (window.scrollY||0)+60;
+    ov.style.top = Math.max(10, y - 80) + 'px';
+    ov.classList.add('show');
     const create = () => {
-      new YT.Player(holder, {
+      ytPlayer = new YT.Player('yt-target', {
         videoId: id,
         playerVars: { autoplay: 1, playsinline: 1 },
-        events: {
-          onReady: (e) => { try { e.target.setVolume(50); e.target.playVideo(); } catch(err){} }
-        }
+        events: { onReady: (ev) => { try { ev.target.setVolume(50); ev.target.playVideo(); } catch(err){} } }
       });
     };
     if (ytApiReady) create();
     else ytQueue.push(create);
+  }
+  function closeShort(){
+    const ov = document.getElementById('short-ov');
+    ov.classList.remove('show');
+    document.getElementById('short-player').innerHTML = '';
+    ytPlayer = null;
   }
 
   load();
