@@ -66,6 +66,7 @@ body.dark .theme-switch .knob { top: 14px; background: #1f1a1d; }
 
 /* 다크모드 고정색 요소 보정 */
 body.dark .nav { background: rgba(18,18,19,0.92); }
+body.dark footer { color: #f3e3ea !important; }
 body.dark .input { background: var(--pink-card); color: var(--text); }
 body.dark .page-btn { background: var(--pink-card); color: var(--text); }
 body.dark .badge-white { background: var(--pink-card); }
