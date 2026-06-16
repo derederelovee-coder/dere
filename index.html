@@ -270,7 +270,7 @@
     /* 문의 */
     .inquiry-btn { position:absolute; top:14px; right:16px; z-index:5; background:#fff; border:1.5px solid var(--pink-light); color:var(--pink-dark); border-radius:999px; padding:9px 18px; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s; }
     .inquiry-btn:hover { background:var(--pink); color:#fff; border-color:var(--pink); }
-    .iq-ov { position:absolute; left:0; right:0; background:rgba(40,20,30,0.35); display:none; align-items:center; justify-content:center; z-index:600; padding:16px; }
+    .iq-ov { position:absolute; left:0; right:0; background:rgba(40,20,30,0.35); display:none; align-items:flex-start; justify-content:center; z-index:600; padding:16px; }
     .iq-ov.show { display:flex; }
     .iq-modal { background:#fff; border-radius:22px; width:100%; max-width:420px; padding:24px; box-shadow:0 20px 60px rgba(255,100,150,0.3); }
     .iq-title { font-size:18px; font-weight:800; color:var(--pink-dark); margin-bottom:4px; }
@@ -621,9 +621,12 @@
   // 문의
   function openInquiry(){
     const ov = document.getElementById('iq-ov');
-    const top = (window.scrollY || document.documentElement.scrollTop || 0);
-    ov.style.top = top + 'px';
-    ov.style.height = (window.innerHeight || 600) + 'px';
+    const e = window.event;
+    let y = 80;
+    if (e) { y = (e.pageY != null ? e.pageY : (e.clientY||0)); }
+    ov.style.top = Math.max(10, y - 60) + 'px';
+    ov.style.height = 'auto';
+    ov.style.minHeight = '0';
     ov.classList.add('show');
   }
   function closeInquiry(){ document.getElementById('iq-ov').classList.remove('show'); }
