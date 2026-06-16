@@ -452,7 +452,7 @@
   <div class="iq-modal">
     <div class="iq-title">✉️ 문의하기</div>
     <div class="iq-desc">데레레에게 하고 싶은 말을 남겨주세요 ♡</div>
-    <input class="iq-input" id="iq-nick" placeholder="닉네임 (선택)">
+    <input class="iq-input" id="iq-nick" placeholder="닉네임 (필수)">
     <textarea class="iq-input" id="iq-msg" rows="4" placeholder="문의 내용을 적어주세요"></textarea>
     <div class="iq-btns">
       <button class="iq-cancel" onclick="closeInquiry()">취소</button>
@@ -599,9 +599,10 @@
   function openInquiry(){ document.getElementById('iq-ov').classList.add('show'); }
   function closeInquiry(){ document.getElementById('iq-ov').classList.remove('show'); }
   async function sendInquiry(){
+    const nick = document.getElementById('iq-nick').value.trim();
+    if(!nick){ alert('닉네임을 적어주세요'); return; }
     const msg = document.getElementById('iq-msg').value.trim();
     if(!msg){ alert('문의 내용을 적어주세요'); return; }
-    const nick = document.getElementById('iq-nick').value.trim() || '익명';
     const ok = await insertRow('inquiries', { nickname: nick, message: msg });
     if(ok){
       alert('문의가 전송됐어요! ♥');
