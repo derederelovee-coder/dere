@@ -364,14 +364,13 @@
       <div class="card-title">🎬 쇼츠 추가</div>
       <div class="form-grid">
         <div class="form-field full"><label class="input-label">유튜브 쇼츠 링크 *</label><input class="input" id="short-url" placeholder="https://youtube.com/shorts/..."></div>
-        <div class="form-field full"><label class="input-label">제목 (선택)</label><input class="input" id="short-title" placeholder="쇼츠 제목"></div>
         <div class="form-field full" style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="addShort()">+ 추가</button></div>
       </div>
     </div>
     <div class="card">
       <div class="card-title">쇼츠 목록</div>
-      <div class="table-wrap"><table><thead><tr><th>제목</th><th>링크</th><th>삭제</th></tr></thead>
-      <tbody id="short-list"><tr><td colspan="3"><div class="spinner"></div></td></tr></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>링크</th><th>삭제</th></tr></thead>
+      <tbody id="short-list"><tr><td colspan="2"><div class="spinner"></div></td></tr></tbody></table></div>
     </div>
   </div>
 
@@ -389,7 +388,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../supabase.js"></script>
 <script>
-  const ADMIN_PASSWORD = '1234';
+  const ADMIN_PASSWORD = 'asdf0110!!';
 
   const profileKeys = [
     'head-sub','quote','msg','soop-id',
@@ -763,13 +762,13 @@
   function renderShorts() {
     const t = document.getElementById('short-list');
     if (!shortData.length) { t.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#ccc;padding:20px">없음</td></tr>'; return; }
-    t.innerHTML = shortData.map(s => `<tr><td>${s.title||'-'}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#888">${s.url}</td><td><button class="delete-btn" onclick="del('shorts',${s.id},loadShort)">🗑</button></td></tr>`).join('');
+    t.innerHTML = shortData.map(s => `<tr><td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#888">${s.url}</td><td><button class="delete-btn" onclick="del('shorts',${s.id},loadShort)">🗑</button></td></tr>`).join('');
   }
   async function addShort() {
     const url = document.getElementById('short-url').value.trim();
     if (!url) { showToast('❗ 링크 필수!'); return; }
-    const ok = await insertRow('shorts', { url, title: document.getElementById('short-title').value.trim() });
-    if (ok) { showToast('✅ 추가!'); document.getElementById('short-url').value=''; document.getElementById('short-title').value=''; loadShort(); }
+    const ok = await insertRow('shorts', { url });
+    if (ok) { showToast('✅ 추가!'); document.getElementById('short-url').value=''; loadShort(); }
     else showToast('❌ 실패');
   }
 
